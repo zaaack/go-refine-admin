@@ -2,7 +2,7 @@ BACKEND_DIR := backend
 FRONTEND_DIR := frontend
 BIN := $(BACKEND_DIR)/bin/enterprise-admin
 
-.PHONY: gen build run tidy dev-backend dev-frontend dev help
+.PHONY: gen build run tidy dev-backend dev-frontend dev docker-build docker-up help
 
 help: ## 查看可用命令
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-13s %s\n", $$1, $$2}'
@@ -27,3 +27,9 @@ dev-frontend: ## 启动前端开发服务（:5173，代理 /api 到 :8080）
 
 dev: ## 同时启动前后端开发服务
 	$(MAKE) -j2 dev-backend dev-frontend
+
+docker-build: ## 构建极简单镜像（sqlite，Go 直 serve 前端）
+	docker build -t enterprise-admin .
+
+docker-up: ## 一键启动极简部署（sqlite 持久化到 volume，:8080）
+	docker compose up -d --build

@@ -1,0 +1,19 @@
+# Minimal deploy: single container, sqlite on a volume, one port (8080)
+# serves both API (/api, /health, /swagger) and frontend (/).
+#
+#   docker compose up -d --build
+#   # open http://localhost:8080 (admin / admin123)
+
+services:
+  app:
+    build: .
+    image: enterprise-admin:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ea-data:/app/data
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+
+volumes:
+  ea-data:

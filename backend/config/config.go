@@ -109,6 +109,10 @@ func Load(path string) (*Config, error) {
 	if c.Server.Port == 0 {
 		c.Server.Port = 8080
 	}
+	// SQLITE_PATH overrides the sqlite file location (used by docker volumes).
+	if p := os.Getenv("SQLITE_PATH"); p != "" {
+		c.Database.SQLite.Path = p
+	}
 	global = &c
 	return global, nil
 }

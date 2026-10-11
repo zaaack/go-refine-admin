@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"enterprise-admin/backend/config"
@@ -62,6 +64,7 @@ func Build(db *gorm.DB) *gin.Engine {
 		v1Public.POST("/login", controllers.Login(db))
 	}
 	r.Static("/uploads", "./uploads")
+	serveSPA(r)
 
 	// ---- Protected API (v1) ----
 	v1 := r.Group("/api/v1")
@@ -134,4 +137,41 @@ func Build(db *gorm.DB) *gin.Engine {
 	}
 
 	return r
+}
+
+// serveSPA serves the frontend production build (frontend/dist copied to
+// WEB_DIR, default ./web) from the same Go process on the same port, so the
+// minimal docker deployment needs neither nginx nor a separate static server.
+// API/docs/upload/login/health routes keep their JSON behavior; every other
+// unknown path falls back to index.html for client-side routing. When WEB_DIR
+// does not exist (e.g. local `go run .` without a frontend build) it is
+// silently skipped.
+func serveSPA(r *gin.Engine) {
+	webDir := os.Getenv("WEB_DIR")
+	if webDir == "" {
+		webDir = "./web"
+	}
+	index := filepath.Join(webDir, "index.html")
+	if _, err := os.Stat(index); err != nil {
+		return
+	}
+	r.NoRoute(func(c *gin.Context) {
+		p := c.Request.URL.Path
+		for _, prefix := range []string{"/api/", "/swagger", "/uploads", "/login", "/health"} {
+			if p == prefix || strings.HasPrefix(p, prefix) {
+				c.JSON(http.StatusNotFound, gin.H{"code": 404, "data": nil, "msg": "not found"})
+				return
+			}
+		}
+		// Serve existing static files (assets, vite.svg, ...) directly.
+		clean := filepath.Clean(strings.TrimPrefix(p, "/"))
+		if clean != "." {
+			full := filepath.Join(webDir, clean)
+			if st, err := os.Stat(full); err == nil && !st.IsDir() {
+				c.File(full)
+				return
+			}
+		}
+		c.File(index)
+	})
 }
