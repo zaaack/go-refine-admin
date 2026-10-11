@@ -32,7 +32,16 @@
     "pwdMismatch": "The two passwords do not match",
     "pwdTooShort": "New password must be at least 6 characters",
     "updateSuccess": "Profile updated",
-    "pwdSuccess": "Password changed"
+    "pwdSuccess": "Password changed",
+    "myDevices": "My devices",
+    "myDevicesTitle": "My online devices",
+    "currentDevice": "Current device",
+    "offlineOthers": "Log out other devices",
+    "offlineOthersConfirm": "Log out all other devices?",
+    "offlineOthersSuccess": "Logged out {{count}} device(s)",
+    "offlineDeviceConfirm": "Log out this device?",
+    "offlineSuccess": "Logged out",
+    "pwdChangedRelogin": "Password changed, please sign in again"
   },
   "tab": {
     "refresh": "Refresh",
@@ -68,6 +77,7 @@
     "loginLog": "Login logs",
     "online": "Online users",
     "server": "Server monitor",
+    "apiDocs": "API Docs",
     "group": {
       "system": "System",
       "business": "Business Demo"
@@ -144,6 +154,9 @@
     "cpuModel": "Model",
     "mem": "Memory",
     "disk": "Disk"
+  },
+  "apidocs": {
+    "openNewTab": "Open in new tab"
   },
   "order": {
     "title": "Orders (regular mode · hand-written logic)",

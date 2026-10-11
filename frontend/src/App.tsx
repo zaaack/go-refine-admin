@@ -30,6 +30,7 @@ const resources = [
   { name: "sys/login-log", list: "/monitor/login-log" },
   { name: "auth/online", list: "/monitor/online" },
   { name: "server-monitor", list: "/monitor/server" },
+  { name: "api-docs", list: "/docs/api" },
 ];
 
 // AntdLocale follows the react-i18next language so antd built-ins

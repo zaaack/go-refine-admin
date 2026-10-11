@@ -14,6 +14,7 @@ import {
   Form,
   Table,
   Tag,
+  Popconfirm,
   message,
   Tooltip,
 } from "antd";
@@ -38,6 +39,7 @@ import {
   TeamOutlined,
   CloudServerOutlined,
   ToolOutlined,
+  ApiOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -66,6 +68,7 @@ const ICONS: Record<string, React.ReactNode> = {
   online: <TeamOutlined />,
   server: <CloudServerOutlined />,
   config: <ToolOutlined />,
+  api: <ApiOutlined />,
 };
 
 function iconOf(name?: string): React.ReactNode {
@@ -105,6 +108,9 @@ export default function AdminLayout() {
   const [myLogsTotal, setMyLogsTotal] = useState(0);
   const [myLogsPage, setMyLogsPage] = useState(1);
   const [myLogsLoading, setMyLogsLoading] = useState(false);
+  const [devicesOpen, setDevicesOpen] = useState(false);
+  const [myDevices, setMyDevices] = useState<any[]>([]);
+  const [myDevicesLoading, setMyDevicesLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [profileForm] = Form.useForm();
   const [pwdForm] = Form.useForm();
@@ -252,6 +258,41 @@ export default function AdminLayout() {
     }
   };
 
+  const openMyDevices = async () => {
+    setDevicesOpen(true);
+    setMyDevicesLoading(true);
+    try {
+      const res = await apiAxios.get("/api/v1/me/devices");
+      const data = (res.data as any)?.data ?? [];
+      setMyDevices(Array.isArray(data) ? data : []);
+    } catch (e: any) {
+      message.error(backendErrorMessage(e));
+    } finally {
+      setMyDevicesLoading(false);
+    }
+  };
+
+  const offlineDevice = async (id: any) => {
+    try {
+      await apiAxios.delete(`/api/v1/me/devices/${id}`);
+      message.success(t("layout.offlineSuccess"));
+      openMyDevices();
+    } catch (e: any) {
+      message.error(backendErrorMessage(e));
+    }
+  };
+
+  const offlineOtherDevices = async () => {
+    try {
+      const res = await apiAxios.post("/api/v1/me/devices/offline-others");
+      const count = (res.data as any)?.data?.count ?? 0;
+      message.success(t("layout.offlineOthersSuccess", { count }));
+      openMyDevices();
+    } catch (e: any) {
+      message.error(backendErrorMessage(e));
+    }
+  };
+
   const savePassword = async () => {
     try {
       const v = await pwdForm.validateFields();
@@ -259,9 +300,11 @@ export default function AdminLayout() {
         oldPassword: v.oldPassword,
         newPassword: v.newPassword,
       });
-      message.success(t("layout.pwdSuccess"));
+      message.success(t("layout.pwdChangedRelogin"));
       pwdForm.resetFields();
       setPwdOpen(false);
+      // Password change revokes every session server-side; sign out locally.
+      logout();
     } catch (e: any) {
       if (e?.errorFields) return;
       message.error(backendErrorMessage(e));
@@ -285,12 +328,14 @@ export default function AdminLayout() {
       { key: "profile", label: t("layout.profile") },
       { key: "password", label: t("layout.changePassword") },
       { key: "loginlog", label: t("layout.loginLog") },
+      { key: "mydevices", label: t("layout.myDevices") },
       { type: "divider" as const },
       { key: "logout", label: t("layout.logout"), danger: true },
     ],
     onClick: ({ key }: { key: string }) => {
       if (key === "profile") void openProfile();
       else if (key === "loginlog") void openMyLoginLog(1);
+      else if (key === "mydevices") void openMyDevices();
       else if (key === "password") {
         pwdForm.resetFields();
         setPwdOpen(true);
@@ -327,6 +372,7 @@ export default function AdminLayout() {
           selectedKeys={[location.pathname]}
           items={menuItems}
           onClick={({ key }) => goPath(key)}
+          style={{ flex: 1, overflowY: "auto", paddingBottom: 48 }}
         />
       </Sider>
       )}
@@ -528,6 +574,65 @@ export default function AdminLayout() {
             }
           />
           <Table.Column dataIndex="msg" title={t("loginlog.msg")} ellipsis />
+        </Table>
+      </Modal>
+
+      {/* 我的在线设备:当前用户的活动会话,可下线其他设备 */}
+      <Modal
+        title={t("layout.myDevicesTitle")}
+        open={devicesOpen}
+        footer={null}
+        onCancel={() => setDevicesOpen(false)}
+        width={860}
+        destroyOnClose
+      >
+        <div style={{ marginBottom: 16 }}>
+          <Popconfirm title={t("layout.offlineOthersConfirm")} onConfirm={offlineOtherDevices}>
+            <Button danger>{t("layout.offlineOthers")}</Button>
+          </Popconfirm>
+        </div>
+        <Table
+          rowKey="id"
+          size="small"
+          loading={myDevicesLoading}
+          dataSource={myDevices}
+          scroll={{ x: "max-content" }}
+          pagination={false}
+        >
+          <Table.Column dataIndex="ip" title={t("online.ip")} width={140} />
+          <Table.Column dataIndex="location" title={t("online.location")} width={130} />
+          <Table.Column dataIndex="browser" title={t("online.browser")} width={110} />
+          <Table.Column dataIndex="os" title={t("online.os")} width={110} />
+          <Table.Column dataIndex="device" title={t("online.device")} width={100} />
+          <Table.Column
+            dataIndex="loginTime"
+            title={t("online.loginTime")}
+            width={170}
+            render={(v: string) => (v ? new Date(v).toLocaleString() : "")}
+          />
+          <Table.Column
+            dataIndex="current"
+            title={t("loginlog.status")}
+            width={110}
+            render={(cur: boolean) => (cur ? <Tag color="green">{t("layout.currentDevice")}</Tag> : "")}
+          />
+          <Table.Column
+            title={t("resource.actions")}
+            width={100}
+            render={(_: any, r: any) =>
+              r.current ? (
+                <Button size="small" type="link" disabled>
+                  {t("online.forceOffline")}
+                </Button>
+              ) : (
+                <Popconfirm title={t("layout.offlineDeviceConfirm")} onConfirm={() => offlineDevice(r.id)}>
+                  <Button size="small" type="link" danger>
+                    {t("online.forceOffline")}
+                  </Button>
+                </Popconfirm>
+              )
+            }
+          />
         </Table>
       </Modal>
 

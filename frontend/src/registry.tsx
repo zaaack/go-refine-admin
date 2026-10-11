@@ -3,6 +3,7 @@ import { productMeta, userMeta, roleMeta, deptMeta, dictMeta, configMeta } from 
 import ResourcePage from "./pages/ResourcePage";
 import OrderPage from "./pages/OrderPage";
 import OperLogPage from "./pages/OperLogPage";
+import ApiDocsPage from "./pages/ApiDocsPage";
 import LoginLogPage from "./pages/LoginLogPage";
 import OnlinePage from "./pages/OnlinePage";
 import ServerPage from "./pages/ServerPage";
@@ -83,6 +84,7 @@ export const navItems: NavItem[] = [
   { path: "/monitor/login-log", title: "登录日志", titleKey: "nav.loginLog", icon: "login", group: "系统管理", groupKey: "nav.group.system", element: <LoginLogPage /> },
   { path: "/monitor/online", title: "在线用户", titleKey: "nav.online", icon: "online", group: "系统管理", groupKey: "nav.group.system", element: <OnlinePage /> },
   { path: "/monitor/server", title: "服务监控", titleKey: "nav.server", icon: "server", group: "系统管理", groupKey: "nav.group.system", element: <ServerPage /> },
+  { path: "/docs/api", title: "接口文档", titleKey: "nav.apiDocs", icon: "api", group: "系统管理", groupKey: "nav.group.system", element: <ApiDocsPage /> },
 ];
 
 export function findNav(path: string): NavItem | undefined {

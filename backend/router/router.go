@@ -75,6 +75,9 @@ func Build(db *gorm.DB) *gin.Engine {
 		v1.GET("/me/profile", controllers.Profile(db))
 		v1.PUT("/me/profile", controllers.UpdateProfile(db))
 		v1.PUT("/me/password", controllers.ChangePassword(db))
+		v1.GET("/me/devices", controllers.MyDevices(db))
+		v1.DELETE("/me/devices/:id", controllers.OfflineDevice(db))
+		v1.POST("/me/devices/offline-others", controllers.OfflineOtherDevices(db))
 		v1.POST("/logout", controllers.Logout(db))
 		v1.GET("/menu/tree", controllers.MenuTree(db))
 		v1.GET("/dashboard/stats", controllers.Dashboard(db))
@@ -96,23 +99,33 @@ func Build(db *gorm.DB) *gin.Engine {
 		v1.PUT("/set-config", controllers.UpdateSetConfig(db))
 
 		// ---- Actions mode (zero-code CRUD) ----
-		hashUserPassword := func(m *models.SysUser) error {
+		hashUserPassword := func(m *models.SysUser) (bool, error) {
 			if m.PlainPassword != "" {
 				if err := m.SetPassword(m.PlainPassword); err != nil {
-					return err
+					return false, err
 				}
 				m.PlainPassword = "" // never echo it back
+				return true, nil
 			}
-			return nil
+			return false, nil
 		}
 		actions.NewResource[models.SysUser](db).WithName("sys/user").WithPermPrefix("sys:user").WithHooks(actions.Hooks[models.SysUser]{
 			BeforeCreate: func(c *gin.Context, m *models.SysUser) error {
 				m.SetCreateBy(auth.GetUserID(c))
-				return hashUserPassword(m)
+				_, err := hashUserPassword(m)
+				return err
 			},
 			BeforeUpdate: func(c *gin.Context, m *models.SysUser) error {
 				m.SetUpdateBy(auth.GetUserID(c))
-				return hashUserPassword(m)
+				hashed, err := hashUserPassword(m)
+				if err != nil {
+					return err
+				}
+				if hashed {
+					// A password reset revokes every online session of that user.
+					db.Model(&models.SysUserToken{}).Where("user_id = ? AND status = 0", m.ID).Update("status", 1)
+				}
+				return nil
 			},
 			BeforeList: actions.DataScopeHook[models.SysUser](),
 		}).Register(v1)

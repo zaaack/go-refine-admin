@@ -350,6 +350,8 @@ func ChangePassword(gdb *gorm.DB) gin.HandlerFunc {
 			response.Error(c, http.StatusInternalServerError, 500, err, "")
 			return
 		}
+		// Revoke every online session of this user (all devices must re-login).
+		gdb.Model(&models.SysUserToken{}).Where("user_id = ? AND status = 0", claims.UserID).Update("status", 1)
 		response.OK(c, gin.H{"id": u.ID}, "")
 	}
 }

@@ -170,6 +170,7 @@ func ensureMonitorMenus(gdb *gorm.DB) error {
 		{Name: "SysLoginLog", Title: "登录日志", Icon: "login", Path: "/monitor/login-log", Component: "monitor/login-log", ParentID: system.ID, Sort: 7, Type: "C", Status: 1},
 		{Name: "SysOnline", Title: "在线用户", Icon: "online", Path: "/monitor/online", Component: "monitor/online", ParentID: system.ID, Sort: 8, Type: "C", Status: 1},
 		{Name: "SysServer", Title: "服务监控", Icon: "server", Path: "/monitor/server", Component: "monitor/server", ParentID: system.ID, Sort: 9, Type: "C", Status: 1},
+		{Name: "SysApiDocs", Title: "接口文档", Icon: "api", Path: "/docs/api", Component: "docs/api", ParentID: system.ID, Sort: 11, Type: "C", Status: 1},
 		{Name: "SysConfig", Title: "参数管理", Icon: "config", Path: "/system/config", Component: "system/config", ParentID: system.ID, Sort: 10, Type: "C", Status: 1},
 	}
 	var configID uint
