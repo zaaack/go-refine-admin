@@ -141,6 +141,152 @@ func Me(c *gin.Context) {
 	}, "")
 }
 
+// Profile returns the current user's full profile from the database.
+//
+//	@Summary	Current user profile
+//	@Tags		Auth
+//	@Produce	json
+//	@Success	200	{object}	response.Envelope
+//	@Router		/me/profile [get]
+//	@Security	Bearer
+func Profile(gdb *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claims := auth.GetClaims(c)
+		if claims == nil {
+			response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthUnauthorized, nil, "unauthorized")
+			return
+		}
+		var u models.SysUser
+		if err := gdb.First(&u, claims.UserID).Error; err != nil {
+			response.ErrorKey(c, http.StatusNotFound, 404, ii18n.CommonNotFound, nil, "记录不存在")
+			return
+		}
+		var role models.SysRole
+		gdb.First(&role, u.RoleID)
+		response.OK(c, gin.H{
+			"id":       u.ID,
+			"username": u.Username,
+			"nickName": u.NickName,
+			"phone":    u.Phone,
+			"email":    u.Email,
+			"avatar":   u.Avatar,
+			"sex":      u.Sex,
+			"deptId":   u.DeptID,
+			"roleId":   u.RoleID,
+			"roleKey":  role.RoleKey,
+			"roleName": role.Name,
+			"remark":   u.Remark,
+		}, "")
+	}
+}
+
+// UpdateProfileRequest is the self-service profile payload. Username, role,
+// status and passwords are intentionally excluded: they are not self-editable.
+type UpdateProfileRequest struct {
+	NickName string `json:"nickName"`
+	Phone    string `json:"phone"`
+	Email    string `json:"email"`
+	Avatar   string `json:"avatar"`
+	Sex      int    `json:"sex"`
+	Remark   string `json:"remark"`
+}
+
+// UpdateProfile updates the current user's basic info.
+//
+//	@Summary	Update own profile
+//	@Tags		Auth
+//	@Accept		json
+//	@Produce	json
+//	@Param		body	body		UpdateProfileRequest	true	"profile"
+//	@Success	200		{object}	response.Envelope
+//	@Router		/me/profile [put]
+//	@Security	Bearer
+func UpdateProfile(gdb *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claims := auth.GetClaims(c)
+		if claims == nil {
+			response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthUnauthorized, nil, "unauthorized")
+			return
+		}
+		var req UpdateProfileRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			response.Error(c, http.StatusBadRequest, 400, err, "")
+			return
+		}
+		var u models.SysUser
+		if err := gdb.First(&u, claims.UserID).Error; err != nil {
+			response.ErrorKey(c, http.StatusNotFound, 404, ii18n.CommonNotFound, nil, "记录不存在")
+			return
+		}
+		u.NickName = req.NickName
+		u.Phone = req.Phone
+		u.Email = req.Email
+		u.Avatar = req.Avatar
+		u.Sex = req.Sex
+		u.Remark = req.Remark
+		u.SetUpdateBy(claims.UserID)
+		if err := gdb.Save(&u).Error; err != nil {
+			response.Error(c, http.StatusInternalServerError, 500, err, "")
+			return
+		}
+		response.OK(c, gin.H{"id": u.ID}, "")
+	}
+}
+
+// ChangePasswordRequest is the self-service password payload.
+type ChangePasswordRequest struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}
+
+// ChangePassword verifies the old password and sets a new one.
+//
+//	@Summary	Change own password
+//	@Tags		Auth
+//	@Accept		json
+//	@Produce	json
+//	@Param		body	body		ChangePasswordRequest	true	"passwords"
+//	@Success	200		{object}	response.Envelope
+//	@Router		/me/password [put]
+//	@Security	Bearer
+func ChangePassword(gdb *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claims := auth.GetClaims(c)
+		if claims == nil {
+			response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthUnauthorized, nil, "unauthorized")
+			return
+		}
+		var req ChangePasswordRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			response.Error(c, http.StatusBadRequest, 400, err, "")
+			return
+		}
+		if len(req.NewPassword) < 6 {
+			response.ErrorKey(c, http.StatusBadRequest, 400, ii18n.AuthPasswordTooShort, nil, "新密码长度至少 6 位")
+			return
+		}
+		var u models.SysUser
+		if err := gdb.First(&u, claims.UserID).Error; err != nil {
+			response.ErrorKey(c, http.StatusNotFound, 404, ii18n.CommonNotFound, nil, "记录不存在")
+			return
+		}
+		if !u.ComparePassword(req.OldPassword) {
+			response.ErrorKey(c, http.StatusBadRequest, 400, ii18n.AuthOldPasswordWrong, nil, "原密码错误")
+			return
+		}
+		if err := u.SetPassword(req.NewPassword); err != nil {
+			response.Error(c, http.StatusInternalServerError, 500, err, "")
+			return
+		}
+		u.SetUpdateBy(claims.UserID)
+		if err := gdb.Save(&u).Error; err != nil {
+			response.Error(c, http.StatusInternalServerError, 500, err, "")
+			return
+		}
+		response.OK(c, gin.H{"id": u.ID}, "")
+	}
+}
+
 // MenuTree returns the menu tree granted to the current user's role (regular
 // mode). The admin role sees everything; other roles are filtered by the
 // role's comma-separated menu_ids, with ancestor nodes kept so the tree renders.

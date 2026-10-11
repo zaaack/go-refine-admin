@@ -71,6 +71,9 @@ func Build(db *gorm.DB) *gin.Engine {
 	v1.Use(auth.Middleware())
 	{
 		v1.GET("/me", controllers.Me)
+		v1.GET("/me/profile", controllers.Profile(db))
+		v1.PUT("/me/profile", controllers.UpdateProfile(db))
+		v1.PUT("/me/password", controllers.ChangePassword(db))
 		v1.GET("/menu/tree", controllers.MenuTree(db))
 		v1.GET("/dashboard/stats", controllers.Dashboard(db))
 		v1.POST("/upload", controllers.Upload(db, "./uploads"))

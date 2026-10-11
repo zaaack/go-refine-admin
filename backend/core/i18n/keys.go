@@ -27,6 +27,8 @@ const (
 	AuthInvalidToken       = "auth.invalidToken"
 	AuthForbiddenRole      = "auth.forbiddenRole"
 	AuthMissingPermission  = "auth.missingPermission" // params: { perm }
+	AuthOldPasswordWrong   = "auth.oldPasswordWrong"
+	AuthPasswordTooShort   = "auth.passwordTooShort"
 	// Captcha.
 	CaptchaGenerateFailed = "captcha.generateFailed"
 	// Roles.
