@@ -167,6 +167,11 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
                 name={f.name}
                 label={fieldLabel(f)}
                 valuePropName={f.type === "switch" ? "checked" : "value"}
+                // Backend stores switch as int (1/0) but <Switch/> works with
+                // boolean: map int->bool on load, bool->int on change/submit,
+                // otherwise Go returns 400 "cannot unmarshal bool ... of type int".
+                getValueProps={f.type === "switch" ? (v) => ({ checked: !!v && v !== 0 }) : undefined}
+                normalize={f.type === "switch" ? (v) => (v ? 1 : 0) : undefined}
                 rules={f.required ? [{ required: true, message: t("resource.required", { label: fieldLabel(f) }) }] : []}
               >
                 {renderFormInput(f, t)}
