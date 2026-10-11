@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
-import { Layout, Menu, Avatar, Dropdown, Typography } from "antd";
+import React, { useState } from "react";
+import { Button, Layout, Menu, Avatar, Dropdown, Typography } from "antd";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useGetIdentity, useLogout } from "@refinedev/core";
 import { useTabs } from "../context/TabsContext";
@@ -19,6 +20,14 @@ export default function AdminLayout() {
   const { data: identity } = useGetIdentity();
   const { mutate: logout } = useLogout();
   const [grantedPaths, setGrantedPaths] = useState<string[] | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
+
+  // 首页（/）自动打开 dashboard
+  React.useEffect(() => {
+    if (location.pathname === "/") {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   // Load the menus granted to the current role; null means "load failed, show all".
   React.useEffect(() => {
@@ -57,9 +66,24 @@ export default function AdminLayout() {
 
   return (
     <Layout style={{ height: "100vh" }}>
-      <Sider theme="dark" width={220}>
-        <div style={{ color: "#fff", padding: 16, fontWeight: 600, fontSize: 16 }}>
-          Go Refine Admin
+      <Sider
+        theme="dark"
+        width={220}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+      >
+        <div
+          style={{
+            color: "#fff",
+            padding: 16,
+            fontWeight: 600,
+            fontSize: 16,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
+        >
+          {collapsed ? "Admin" : "Go Refine Admin"}
         </div>
         <Menu
           theme="dark"
@@ -85,7 +109,14 @@ export default function AdminLayout() {
             padding: "0 16px",
           }}
         >
-          <Typography.Text strong>企业级后台脚手架 · Actions / 常规双轨</Typography.Text>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+            />
+            <Typography.Text strong>企业级后台脚手架 · Actions / 常规双轨</Typography.Text>
+          </div>
           <Dropdown menu={userMenu}>
             <span style={{ cursor: "pointer" }}>
               <Avatar style={{ marginRight: 8 }}>
