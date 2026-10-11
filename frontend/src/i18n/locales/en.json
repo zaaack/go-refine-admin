@@ -34,6 +34,17 @@
     "updateSuccess": "Profile updated",
     "pwdSuccess": "Password changed"
   },
+  "tab": {
+    "refresh": "Refresh",
+    "pin": "Pin tab",
+    "unpin": "Unpin tab",
+    "closeCurrent": "Close",
+    "closeOthers": "Close other tabs",
+    "closeRight": "Close tabs to the right",
+    "closeAll": "Close all tabs",
+    "maximize": "Maximize",
+    "exitMaximize": "Exit maximize"
+  },
   "login": {
     "title": "Go Refine Admin",
     "username": "Username",

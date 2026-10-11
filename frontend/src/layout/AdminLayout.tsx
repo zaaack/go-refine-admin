@@ -300,7 +300,8 @@ export default function AdminLayout() {
 
   return (
     <Layout style={{ height: "100vh" }}>
-      <Sider
+      {!tabs.maximized && (
+        <Sider
         theme="dark"
         width={220}
         collapsedWidth={64}
@@ -328,8 +329,10 @@ export default function AdminLayout() {
           onClick={({ key }) => goPath(key)}
         />
       </Sider>
+      )}
       <Layout>
-        <Header
+        {!tabs.maximized && (
+          <Header
           style={{
             background: "#fff",
             display: "flex",
@@ -387,6 +390,7 @@ export default function AdminLayout() {
             </Dropdown>
           </div>
         </Header>
+        )}
         <Content style={{ overflow: "hidden" }}>
           <TabsViewMount />
         </Content>

@@ -34,6 +34,17 @@
     "updateSuccess": "个人信息已更新",
     "pwdSuccess": "密码修改成功"
   },
+  "tab": {
+    "refresh": "刷新",
+    "pin": "固定",
+    "unpin": "取消固定",
+    "closeCurrent": "关闭当前",
+    "closeOthers": "关闭其他",
+    "closeRight": "关闭右侧",
+    "closeAll": "关闭全部",
+    "maximize": "最大化",
+    "exitMaximize": "退出最大化"
+  },
   "login": {
     "title": "Go Refine Admin",
     "username": "用户名",

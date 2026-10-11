@@ -2,3 +2,13 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* Tab 右键菜单热区:Dropdown 只包裹文字,右键可点区域比整个标签小。
+   用负 margin + 同值 padding 让 label 铺满标签(antd card tab 内边距为 8px 16px)。 */
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab .tab-label-full {
+  display: inline-flex;
+  align-items: center;
+  margin: -8px -16px;
+  padding: 8px 16px;
+}
+
