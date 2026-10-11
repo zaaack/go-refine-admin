@@ -150,6 +150,10 @@ func seed(gdb *gorm.DB) error {
 	if err := ensureMonitorMenus(gdb); err != nil {
 		return err
 	}
+	// Log retention parameters (same idempotent rule).
+	if err := ensureRetentionConfigs(gdb); err != nil {
+		return err
+	}
 	return nil
 }
 

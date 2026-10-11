@@ -39,6 +39,9 @@ func main() {
 	// Bind gorm/gen's generated query package to the live database so the
 	// type-safe accessors (genquery.Order.Amount.Gte, ...) operate on it.
 	genquery.SetDefault(gdb)
+	// Expired audit/login logs are purged at boot and every 24h
+	// (window from sys.log.*-retention-days, floor 30 days).
+	go db.StartLogRetentionJanitor(gdb)
 	r := router.Build(gdb)
 	log.Printf("go-refine-admin listening on %s", cfg.Server.Addr())
 	if err := r.Run(cfg.Server.Addr()); err != nil {

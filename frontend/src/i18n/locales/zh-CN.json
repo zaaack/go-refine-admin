@@ -87,13 +87,7 @@
     "body": "请求体",
     "errMsg": "错误信息",
     "createdAt": "创建时间",
-    "detail": "详情",
-    "delete": "删除",
-    "deleteConfirm": "确认删除这条记录吗?",
-    "deleted": "已删除",
-    "clean": "清空",
-    "cleanConfirm": "确认清空全部操作日志吗?",
-    "cleaned": "已清空"
+    "detail": "详情"
   },
   "loginlog": {
     "title": "登录日志",
@@ -107,13 +101,7 @@
     "success": "成功",
     "fail": "失败",
     "msg": "信息",
-    "createdAt": "登录时间",
-    "delete": "删除",
-    "deleteConfirm": "确认删除这条记录吗?",
-    "deleted": "已删除",
-    "clean": "清空",
-    "cleanConfirm": "确认清空全部登录日志吗?",
-    "cleaned": "已清空"
+    "createdAt": "登录时间"
   },
   "online": {
     "title": "在线用户",

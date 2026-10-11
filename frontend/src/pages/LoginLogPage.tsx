@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Table, Form, Input, Select, Button, Space, Card, Tag, Popconfirm, message } from "antd";
+import { Table, Form, Input, Select, Button, Space, Card, Tag, message } from "antd";
 import { apiAxios, unwrap } from "../api/client";
 import { backendErrorMessage } from "../i18n";
 
@@ -46,36 +46,8 @@ export default function LoginLogPage() {
     fetchList(1, pageSize, v);
   };
 
-  const onDelete = async (id: any) => {
-    try {
-      await unwrap(apiAxios.delete(`${BASE}/${id}`));
-      message.success(t("loginlog.deleted"));
-      fetchList(page, pageSize, form.getFieldsValue());
-    } catch (e: any) {
-      message.error(backendErrorMessage(e));
-    }
-  };
-
-  const onClean = async () => {
-    try {
-      await unwrap(apiAxios.delete(`${BASE}/clean`));
-      message.success(t("loginlog.cleaned"));
-      setPage(1);
-      fetchList(1, pageSize, form.getFieldsValue());
-    } catch (e: any) {
-      message.error(backendErrorMessage(e));
-    }
-  };
-
   return (
-    <Card
-      title={t("loginlog.title")}
-      extra={
-        <Popconfirm title={t("loginlog.cleanConfirm")} onConfirm={onClean}>
-          <Button danger>{t("loginlog.clean")}</Button>
-        </Popconfirm>
-      }
-    >
+    <Card title={t("loginlog.title")}>
       <Form form={form} layout="inline" onFinish={onSearch} style={{ marginBottom: 16, rowGap: 8 }}>
         <Form.Item name="username" label={t("loginlog.username")}>
           <Input allowClear style={{ width: 160 }} />
@@ -139,18 +111,6 @@ export default function LoginLogPage() {
           title={t("loginlog.createdAt")}
           width={170}
           render={(v: string) => (v ? new Date(v).toLocaleString() : "")}
-        />
-        <Table.Column
-          title={t("resource.actions")}
-          fixed="right"
-          width={90}
-          render={(_: any, r: any) => (
-            <Popconfirm title={t("loginlog.deleteConfirm")} onConfirm={() => onDelete(r.id)}>
-              <Button size="small" type="link" danger>
-                {t("loginlog.delete")}
-              </Button>
-            </Popconfirm>
-          )}
         />
       </Table>
     </Card>

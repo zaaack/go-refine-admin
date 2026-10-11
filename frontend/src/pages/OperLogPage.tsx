@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Table, Form, Input, Select, Button, Space, Card, Tag, Drawer, Descriptions, Popconfirm, message } from "antd";
+import { Table, Form, Input, Select, Button, Space, Card, Tag, Drawer, Descriptions, message } from "antd";
 import { apiAxios, unwrap } from "../api/client";
 import { backendErrorMessage } from "../i18n";
 
@@ -51,27 +51,6 @@ export default function OperLogPage() {
     fetchList(1, pageSize, v);
   };
 
-  const onDelete = async (id: any) => {
-    try {
-      await unwrap(apiAxios.delete(`${BASE}/${id}`));
-      message.success(t("operlog.deleted"));
-      fetchList(page, pageSize, form.getFieldsValue());
-    } catch (e: any) {
-      message.error(backendErrorMessage(e));
-    }
-  };
-
-  const onClean = async () => {
-    try {
-      await unwrap(apiAxios.delete(`${BASE}/clean`));
-      message.success(t("operlog.cleaned"));
-      fetchList(1, pageSize, form.getFieldsValue());
-      setPage(1);
-    } catch (e: any) {
-      message.error(backendErrorMessage(e));
-    }
-  };
-
   const onDetail = async (id: any) => {
     try {
       const d = await unwrap<any>(apiAxios.get(`${BASE}/${id}`));
@@ -82,14 +61,7 @@ export default function OperLogPage() {
   };
 
   return (
-    <Card
-      title={t("operlog.title")}
-      extra={
-        <Popconfirm title={t("operlog.cleanConfirm")} onConfirm={onClean}>
-          <Button danger>{t("operlog.clean")}</Button>
-        </Popconfirm>
-      }
-    >
+    <Card title={t("operlog.title")}>
       <Form form={form} layout="inline" onFinish={onSearch} style={{ marginBottom: 16, rowGap: 8 }}>
         <Form.Item name="username" label={t("operlog.username")}>
           <Input allowClear style={{ width: 160 }} />
@@ -158,18 +130,11 @@ export default function OperLogPage() {
         <Table.Column
           title={t("resource.actions")}
           fixed="right"
-          width={150}
+          width={90}
           render={(_: any, r: any) => (
-            <Space>
-              <Button size="small" type="link" onClick={() => onDetail(r.id)}>
-                {t("operlog.detail")}
-              </Button>
-              <Popconfirm title={t("operlog.deleteConfirm")} onConfirm={() => onDelete(r.id)}>
-                <Button size="small" type="link" danger>
-                  {t("operlog.delete")}
-                </Button>
-              </Popconfirm>
-            </Space>
+            <Button size="small" type="link" onClick={() => onDetail(r.id)}>
+              {t("operlog.detail")}
+            </Button>
           )}
         />
       </Table>

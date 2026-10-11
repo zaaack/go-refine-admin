@@ -87,13 +87,7 @@
     "body": "Body",
     "errMsg": "Error",
     "createdAt": "Created at",
-    "detail": "Detail",
-    "delete": "Delete",
-    "deleteConfirm": "Delete this record?",
-    "deleted": "Deleted",
-    "clean": "Clean",
-    "cleanConfirm": "Clean ALL operation logs?",
-    "cleaned": "Cleaned"
+    "detail": "Detail"
   },
   "loginlog": {
     "title": "Login logs",
@@ -107,13 +101,7 @@
     "success": "Success",
     "fail": "Failed",
     "msg": "Message",
-    "createdAt": "Login time",
-    "delete": "Delete",
-    "deleteConfirm": "Delete this record?",
-    "deleted": "Deleted",
-    "clean": "Clean",
-    "cleanConfirm": "Clean ALL login logs?",
-    "cleaned": "Cleaned"
+    "createdAt": "Login time"
   },
   "online": {
     "title": "Online users",
