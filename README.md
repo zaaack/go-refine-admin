@@ -17,7 +17,9 @@
 
 ```
 enterprise-admin/
+├── Makefile                 # 常用命令：make gen / build / run / tidy
 ├── backend/                 # Go 服务
+│   ├── bin/                 # make build 产物（git 忽略）
 │   ├── main.go              # 启动入口 + swagger 注解
 │   ├── config/              # yaml 配置
 │   ├── db/                  # gorm 连接 + 自动迁移 + 种子数据
@@ -46,13 +48,29 @@ enterprise-admin/
         └── pages/           # Login / Dashboard / ResourcePage(自动) / OrderPage(手写)
 ```
 
+## 常用命令（根目录 Makefile）
+
+```bash
+make help    # 查看全部命令
+make gen     # 生成 gorm 类型安全查询包（改 models/ 后重跑）
+make build   # 编译后端二进制到 backend/bin/enterprise-admin
+make run     # 本地运行后端（默认 sqlite :8080）
+make tidy    # 整理 Go 依赖
+```
+
+构建产物运行（需在 `backend/` 下执行，配置文件/数据库均走相对路径）：
+
+```bash
+cd backend && ./bin/enterprise-admin   # 监听 :8080，自动建表 + 种子数据
+```
+
 ## 运行
 
 ### 后端
 ```bash
 cd backend
 go mod tidy
-go run ./cmd/gen         # 生成 gorm/gen 类型安全查询包（genquery/），改模型后重跑
+go run ./cmd/gen         # 生成 gorm/gen 类型安全查询包（genquery/），改模型后重跑（等价 make gen）
 go run .                 # 默认 sqlite，监听 :8080，自动建表 + 种子数据
 # Swagger: http://localhost:8080/swagger/index.html
 ```
