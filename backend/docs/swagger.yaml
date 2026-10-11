@@ -53,9 +53,9 @@ definitions:
     type: object
 info:
   contact: {}
-  description: Go + gin + gorm enterprise admin scaffold with Actions / regular dual-track
+  description: Go + gin + gorm go-refine-admin scaffold with Actions / regular dual-track
     and type-safe queries.
-  title: Enterprise Admin API
+  title: Go Refine Admin API
   version: "1.0"
 paths:
   /{resource}:

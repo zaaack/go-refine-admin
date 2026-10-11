@@ -7,7 +7,7 @@
 services:
   app:
     build: .
-    image: enterprise-admin:latest
+    image: go-refine-admin:latest
     ports:
       - "8080:8080"
     volumes:

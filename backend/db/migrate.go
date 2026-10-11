@@ -1,7 +1,7 @@
 package db
 
 import (
-	"enterprise-admin/backend/models"
+	"go-refine-admin/backend/models"
 	"gorm.io/gorm"
 )
 

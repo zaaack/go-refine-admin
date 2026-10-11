@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"enterprise-admin/backend/config"
+	"go-refine-admin/backend/config"
 
 	"github.com/gin-gonic/gin"
 )

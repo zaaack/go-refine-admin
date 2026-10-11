@@ -9,9 +9,9 @@ package main
 import (
 	"log"
 
-	"enterprise-admin/backend/config"
-	"enterprise-admin/backend/db"
-	"enterprise-admin/backend/models"
+	"go-refine-admin/backend/config"
+	"go-refine-admin/backend/db"
+	"go-refine-admin/backend/models"
 
 	"gorm.io/gen"
 )

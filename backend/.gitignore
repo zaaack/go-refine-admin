@@ -8,10 +8,10 @@
 *.test
 *.out
 /bin/
-enterprise-admin
+go-refine-admin
 
 # local runtime data
-enterprise-admin.db
+go-refine-admin.db
 uploads/
 
 # Go workspace

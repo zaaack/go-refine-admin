@@ -1,6 +1,6 @@
 BACKEND_DIR := backend
 FRONTEND_DIR := frontend
-BIN := $(BACKEND_DIR)/bin/enterprise-admin
+BIN := $(BACKEND_DIR)/bin/go-refine-admin
 
 .PHONY: gen build run tidy dev-backend dev-frontend dev docker-build docker-up help
 
@@ -10,8 +10,8 @@ help: ## 查看可用命令
 gen: ## 生成 gorm 类型安全查询包（改 models/ 后重跑）
 	cd $(BACKEND_DIR) && go run ./cmd/gen
 
-build: ## 编译后端二进制到 backend/bin/enterprise-admin
-	cd $(BACKEND_DIR) && go build -o bin/enterprise-admin .
+build: ## 编译后端二进制到 backend/bin/go-refine-admin
+	cd $(BACKEND_DIR) && go build -o bin/go-refine-admin .
 
 run: ## 本地运行后端（默认 sqlite :8080）
 	cd $(BACKEND_DIR) && go run .
@@ -29,7 +29,7 @@ dev: ## 同时启动前后端开发服务
 	$(MAKE) -j2 dev-backend dev-frontend
 
 docker-build: ## 构建极简单镜像（sqlite，Go 直 serve 前端）
-	docker build -t enterprise-admin .
+	docker build -t go-refine-admin .
 
 docker-up: ## 一键启动极简部署（sqlite 持久化到 volume，:8080）
 	docker compose up -d --build

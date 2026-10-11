@@ -1,4 +1,4 @@
-module enterprise-admin/backend
+module go-refine-admin/backend
 
 go 1.25
 

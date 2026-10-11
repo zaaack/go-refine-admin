@@ -1,7 +1,7 @@
 /* tslint:disable */
 /**
- * Enterprise Admin API
- * Go + gin + gorm enterprise admin scaffold with Actions / regular dual-track and type-safe queries.
+ * Go Refine Admin API
+ * Go + gin + gorm go-refine-admin scaffold with Actions / regular dual-track and type-safe queries.
  *
  * The version of the OpenAPI document: 1.0
  * 

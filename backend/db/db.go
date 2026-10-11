@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 
-	"enterprise-admin/backend/config"
+	"go-refine-admin/backend/config"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"

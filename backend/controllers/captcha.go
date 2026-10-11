@@ -3,7 +3,7 @@ package controllers
 import (
 	"time"
 
-	"enterprise-admin/backend/core/response"
+	"go-refine-admin/backend/core/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"

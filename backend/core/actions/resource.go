@@ -1,9 +1,9 @@
 package actions
 
 import (
-	"enterprise-admin/backend/core/auth"
-	"enterprise-admin/backend/core/query"
-	"enterprise-admin/backend/models"
+	"go-refine-admin/backend/core/auth"
+	"go-refine-admin/backend/core/query"
+	"go-refine-admin/backend/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

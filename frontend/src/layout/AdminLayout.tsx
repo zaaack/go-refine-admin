@@ -59,7 +59,7 @@ export default function AdminLayout() {
     <Layout style={{ height: "100vh" }}>
       <Sider theme="dark" width={220}>
         <div style={{ color: "#fff", padding: 16, fontWeight: 600, fontSize: 16 }}>
-          Enterprise Admin
+          Go Refine Admin
         </div>
         <Menu
           theme="dark"

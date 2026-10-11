@@ -1,4 +1,4 @@
-# Enterprise Admin — Go + React 企业级后台脚手架
+# Go Refine Admin — Go + React 企业级后台脚手架
 
 > **语言：** 中文 · [English](./README.md)
 
@@ -18,7 +18,7 @@
 ## 目录结构
 
 ```
-enterprise-admin/
+go-refine-admin/
 ├── Dockerfile                 # 极简单镜像部署（sqlite，Go 直 serve 前端）
 ├── docker-compose.yml         # 一键部署：单端口 :8080，sqlite 落 volume
 ├── Makefile                   # 常用命令：make gen / build / run / tidy / docker-*
@@ -64,8 +64,8 @@ docker compose up -d --build
 或直接用 docker：
 
 ```bash
-docker build -t enterprise-admin .
-docker run -p 8080:8080 -v ea-data:/app/data enterprise-admin
+docker build -t go-refine-admin .
+docker run -p 8080:8080 -v ea-data:/app/data go-refine-admin
 ```
 
 sqlite 文件持久化在 `ea-data` volume（`/app/data`），上传文件在 `./uploads`。环境变量覆盖：
@@ -82,7 +82,7 @@ sqlite 文件持久化在 `ea-data` volume（`/app/data`），上传文件在 `.
 ```bash
 make help          # 查看全部命令
 make gen           # 生成 gorm 类型安全查询包（改 models/ 后重跑）
-make build         # 编译后端二进制到 backend/bin/enterprise-admin
+make build         # 编译后端二进制到 backend/bin/go-refine-admin
 make run           # 本地运行后端（默认 sqlite :8080）
 make tidy          # 整理 Go 依赖
 make dev-backend   # 启动后端开发服务（:8080）
@@ -95,7 +95,7 @@ make docker-up     # 一键极简部署（sqlite 持久化到 volume，:8080）
 构建产物运行（需在 `backend/` 下执行，配置文件/数据库均走相对路径）：
 
 ```bash
-cd backend && ./bin/enterprise-admin   # 监听 :8080，自动建表 + 种子数据
+cd backend && ./bin/go-refine-admin   # 监听 :8080，自动建表 + 种子数据
 ```
 
 ## 运行

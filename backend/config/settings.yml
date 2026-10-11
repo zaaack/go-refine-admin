@@ -1,26 +1,26 @@
-# enterprise-admin backend configuration
+# go-refine-admin backend configuration
 server:
   mode: debug            # debug | release
   host: 0.0.0.0
   port: 8080
 
 jwt:
-  secret: "enterprise-admin-secret-change-me"
+  secret: "go-refine-admin-secret-change-me"
   timeout: 720h          # token lifetime
-  issuer: "enterprise-admin"
+  issuer: "go-refine-admin"
 
 database:
   # sqlite | mysql | postgres
   driver: sqlite
   # sqlite file (used when driver=sqlite)
   sqlite:
-    path: "./enterprise-admin.db"
+    path: "./go-refine-admin.db"
   mysql:
     host: 127.0.0.1
     port: 3306
     username: root
     password: root
-    database: enterprise_admin
+    database: go_refine_admin
     charset: utf8mb4
     parseTime: true
   postgres:
@@ -28,7 +28,7 @@ database:
     port: 5432
     username: postgres
     password: postgres
-    database: enterprise_admin
+    database: go_refine_admin
     sslmode: disable
 
 cors:

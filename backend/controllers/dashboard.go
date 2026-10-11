@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"enterprise-admin/backend/core/response"
-	"enterprise-admin/backend/models"
+	"go-refine-admin/backend/core/response"
+	"go-refine-admin/backend/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

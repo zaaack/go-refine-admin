@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"enterprise-admin/backend/config"
-	"enterprise-admin/backend/core/response"
+	"go-refine-admin/backend/config"
+	"go-refine-admin/backend/core/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

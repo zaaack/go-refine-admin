@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"enterprise-admin/backend/core/query"
-	"enterprise-admin/backend/core/response"
+	"go-refine-admin/backend/core/query"
+	"go-refine-admin/backend/core/response"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

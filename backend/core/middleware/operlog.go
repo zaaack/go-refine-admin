@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"enterprise-admin/backend/core/auth"
-	"enterprise-admin/backend/models"
+	"go-refine-admin/backend/core/auth"
+	"go-refine-admin/backend/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

@@ -4,8 +4,8 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "Go + gin + gorm enterprise admin scaffold with Actions / regular dual-track and type-safe queries.",
-        "title": "Enterprise Admin API",
+        "description": "Go + gin + gorm go-refine-admin scaffold with Actions / regular dual-track and type-safe queries.",
+        "title": "Go Refine Admin API",
         "contact": {},
         "version": "1.0"
     },

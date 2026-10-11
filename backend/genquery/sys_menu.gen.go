@@ -17,7 +17,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"enterprise-admin/backend/models"
+	"go-refine-admin/backend/models"
 )
 
 func newSysMenu(db *gorm.DB, opts ...gen.DOOption) sysMenu {

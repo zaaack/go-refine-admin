@@ -1,4 +1,4 @@
-# Enterprise Admin — Go + React Admin Scaffold
+# Go Refine Admin — Go + React Admin Scaffold
 
 > **Language:** English (default) · [中文文档](./README.zh-CN.md)
 
@@ -22,7 +22,7 @@ dual-track design of **Actions mode (zero-code CRUD)** and **Regular mode
 ## Layout
 
 ```
-enterprise-admin/
+go-refine-admin/
 ├── Dockerfile                 # minimal single-image deploy (sqlite, Go serves frontend)
 ├── docker-compose.yml         # one-command deploy: single port :8080, sqlite volume
 ├── Makefile                   # shortcuts: make gen / build / run / tidy / docker-*
@@ -66,8 +66,8 @@ docker compose up -d --build
 Or with plain docker:
 
 ```bash
-docker build -t enterprise-admin .
-docker run -p 8080:8080 -v ea-data:/app/data enterprise-admin
+docker build -t go-refine-admin .
+docker run -p 8080:8080 -v ea-data:/app/data go-refine-admin
 ```
 
 The sqlite file persists in the `ea-data` volume (`/app/data`), uploads in
@@ -85,7 +85,7 @@ The sqlite file persists in the `ea-data` volume (`/app/data`), uploads in
 ```bash
 make help          # list all commands
 make gen           # regenerate the gorm type-safe query package (re-run after changing models/)
-make build         # compile the backend binary to backend/bin/enterprise-admin
+make build         # compile the backend binary to backend/bin/go-refine-admin
 make run           # run the backend locally (sqlite :8080 by default)
 make tidy          # tidy Go dependencies
 make dev-backend   # start the backend dev server (:8080)
@@ -98,7 +98,7 @@ make docker-up     # one-command minimal deploy (sqlite persisted in a volume, :
 Run a built binary (from `backend/`, config/DB paths are relative):
 
 ```bash
-cd backend && ./bin/enterprise-admin   # listens on :8080, auto-migrates + seeds
+cd backend && ./bin/go-refine-admin   # listens on :8080, auto-migrates + seeds
 ```
 
 ## Run

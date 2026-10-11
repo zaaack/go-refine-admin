@@ -17,7 +17,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"enterprise-admin/backend/models"
+	"go-refine-admin/backend/models"
 )
 
 func newSysOperLog(db *gorm.DB, opts ...gen.DOOption) sysOperLog {

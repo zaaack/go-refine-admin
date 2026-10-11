@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"enterprise-admin/backend/config"
-	"enterprise-admin/backend/core/auth"
-	"enterprise-admin/backend/core/response"
-	"enterprise-admin/backend/models"
+	"go-refine-admin/backend/config"
+	"go-refine-admin/backend/core/auth"
+	"go-refine-admin/backend/core/response"
+	"go-refine-admin/backend/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

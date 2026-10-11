@@ -3,7 +3,7 @@ package auth
 import (
 	"net/http"
 
-	"enterprise-admin/backend/core/response"
+	"go-refine-admin/backend/core/response"
 
 	"github.com/gin-gonic/gin"
 )

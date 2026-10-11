@@ -43,7 +43,7 @@ export default function Login() {
         background: "#f0f2f5",
       }}
     >
-      <Card style={{ width: 360 }} title={<Typography.Title level={4}>Enterprise Admin</Typography.Title>}>
+      <Card style={{ width: 360 }} title={<Typography.Title level={4}>Go Refine Admin</Typography.Title>}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item name="username" label="用户名" rules={[{ required: true, message: "请输入用户名" }]}>
             <Input placeholder="admin" />
