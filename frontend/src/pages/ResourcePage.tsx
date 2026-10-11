@@ -223,6 +223,8 @@ function renderFormInput(f: FieldMeta, t: TFunction) {
       const options = (f.options ?? []).map((o) => ({ label: t(o.labelKey, { defaultValue: o.label }), value: o.value }));
       return <Select options={options} allowClear />;
     }
+    case "menutree":
+      return <MenuTreeSelect />;
     default:
       return <Input />;
   }
