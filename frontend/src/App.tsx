@@ -1,5 +1,6 @@
 import React from "react";
 import { Refine, Authenticated } from "@refinedev/core";
+import { useNotificationProvider } from "@refinedev/antd";
 import routerProvider, { CatchAllNavigate } from "@refinedev/react-router-v6";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ConfigProvider } from "antd";
@@ -38,45 +39,56 @@ function AntdLocale({ children }: { children: React.ReactNode }) {
   return <ConfigProvider locale={i18n.language === "en" ? enUS : zhCN}>{children}</ConfigProvider>;
 }
 
+// Shell renders Refine under the antd ConfigProvider so the theme-compatible
+// notification provider works. Without notificationProvider, refine-driven
+// CRUD (ResourcePage create/edit/delete, tables) fails silently on API errors.
+function Shell() {
+  const notificationProvider = useNotificationProvider();
+  return (
+    <Refine
+      dataProvider={dataProvider}
+      authProvider={authProvider}
+      routerProvider={routerProvider}
+      notificationProvider={notificationProvider}
+      i18nProvider={refineI18nProvider}
+      resources={resources}
+      options={{
+        syncWithLocation: false,
+        warnWhenUnsavedChanges: false,
+        disableTelemetry: true,
+      }}
+    >
+      <TabsProvider>
+        <Routes>
+          {/* Logged-in users are bounced away from /login. */}
+          <Route
+            path="/login"
+            element={
+              <Authenticated key="login" fallback={<Login />}>
+                <Navigate to="/" />
+              </Authenticated>
+            }
+          />
+          {/* Everything else requires authentication; otherwise redirect to /login. */}
+          <Route
+            path="/*"
+            element={
+              <Authenticated key="app" fallback={<CatchAllNavigate to="/login" />}>
+                <AdminLayout />
+              </Authenticated>
+            }
+          />
+        </Routes>
+      </TabsProvider>
+    </Refine>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AntdLocale>
-        <Refine
-          dataProvider={dataProvider}
-          authProvider={authProvider}
-          routerProvider={routerProvider}
-          i18nProvider={refineI18nProvider}
-          resources={resources}
-          options={{
-            syncWithLocation: false,
-            warnWhenUnsavedChanges: false,
-            disableTelemetry: true,
-          }}
-        >
-          <TabsProvider>
-            <Routes>
-              {/* Logged-in users are bounced away from /login. */}
-              <Route
-                path="/login"
-                element={
-                  <Authenticated key="login" fallback={<Login />}>
-                    <Navigate to="/" />
-                  </Authenticated>
-                }
-              />
-              {/* Everything else requires authentication; otherwise redirect to /login. */}
-              <Route
-                path="/*"
-                element={
-                  <Authenticated key="app" fallback={<CatchAllNavigate to="/login" />}>
-                    <AdminLayout />
-                  </Authenticated>
-                }
-              />
-            </Routes>
-          </TabsProvider>
-        </Refine>
+        <Shell />
       </AntdLocale>
     </BrowserRouter>
   );

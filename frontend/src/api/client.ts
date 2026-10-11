@@ -8,6 +8,7 @@ import {
   UploadApi,
   type ResponseEnvelope,
 } from "./index";
+import { tBackend } from "../i18n";
 
 // Shared axios instance for all generated APIs. URLs stay relative so the Vite
 // dev server proxies /api/* to the Go backend (:8080).
@@ -53,20 +54,38 @@ export interface Envelope<T = any> {
   [k: string]: any;
 }
 
+// toApiError builds the enriched error refine surfaces: `statusCode` drives
+// authProvider.onError (401 -> logout), `i18nKey`/`i18nParams` drive
+// backendErrorMessage. message is localized up-front so refine's default
+// notifications (which only render strings) already show i18n text.
+function toApiError(httpStatus: number, env: Envelope<any> | undefined, response?: unknown): any {
+  // No envelope (network error, proxy 502, ...): fall back to localized text.
+  const fallback = env?.msg || `${tBackend(undefined, undefined, undefined)} (${httpStatus})`;
+  const err: any = new Error(
+    env?.msgKey ? tBackend(env.msgKey, env.msgParams, fallback) : fallback
+  );
+  err.statusCode = env?.code ?? httpStatus;
+  err.i18nKey = env?.msgKey;
+  err.i18nParams = env?.msgParams;
+  if (response !== undefined) err.response = response;
+  return err;
+}
+
 // unwrap resolves the { code, data, msg, msgKey, msgParams } envelope, throwing
-// on business-code errors so refine surfaces them. The thrown error carries
-// `statusCode` for authProvider.onError (401 -> logout) plus `i18nKey` /
-// `i18nParams` for frontend rendering (see i18n/backendErrorMessage).
+// on business-code errors so refine surfaces them (see toApiError).
+// NOTE: axios rejects on HTTP non-2xx (e.g. backend 400 validation errors),
+// so the envelope must also be extracted from the caught AxiosError —
+// otherwise callers only see "Request failed with status code 400".
 export async function unwrap<T = any>(p: AxiosPromise<ResponseEnvelope>): Promise<T> {
-  const res = await p;
+  let res;
+  try {
+    res = await p;
+  } catch (e: any) {
+    throw toApiError(e?.response?.status ?? 0, e?.response?.data as Envelope<any> | undefined, e?.response ?? e);
+  }
   const env = res.data as Envelope<T>;
   if (env?.code !== 200) {
-    const err: any = new Error(env?.msg || `request failed (${res.status})`);
-    err.statusCode = env?.code;
-    err.i18nKey = env?.msgKey;
-    err.i18nParams = env?.msgParams;
-    err.response = res;
-    throw err;
+    throw toApiError(res.status, env, res);
   }
   return env.data as T;
 }
@@ -75,12 +94,19 @@ export async function unwrap<T = any>(p: AxiosPromise<ResponseEnvelope>): Promis
 // endpoint the captcha id lives top-level ({ code, data, id }) for
 // go-admin compatibility, not inside data.
 export async function fetchCaptcha(): Promise<{ id: string; img: string }> {
-  const res = await authApi.captchaGet();
+  let res;
+  try {
+    res = await authApi.captchaGet();
+  } catch (e: any) {
+    throw toApiError(e?.response?.status ?? 0, e?.response?.data as Envelope<any> | undefined, e?.response ?? e);
+  }
   const env = res.data as Envelope<string>;
   if (env?.code !== 200) {
-    const err: any = new Error(env?.msg || "request failed");
-    err.i18nKey = env?.msgKey || "captcha.generateFailed";
-    err.i18nParams = env?.msgParams;
+    const err = toApiError(res.status, env, res);
+    if (!err.i18nKey) {
+      err.i18nKey = "captcha.generateFailed";
+      err.message = tBackend("captcha.generateFailed", undefined, err.message);
+    }
     throw err;
   }
   return { id: String((env as any).id ?? ""), img: String(env.data ?? "") };
