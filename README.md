@@ -51,11 +51,14 @@ enterprise-admin/
 ## 常用命令（根目录 Makefile）
 
 ```bash
-make help    # 查看全部命令
-make gen     # 生成 gorm 类型安全查询包（改 models/ 后重跑）
-make build   # 编译后端二进制到 backend/bin/enterprise-admin
-make run     # 本地运行后端（默认 sqlite :8080）
-make tidy    # 整理 Go 依赖
+make help          # 查看全部命令
+make gen           # 生成 gorm 类型安全查询包（改 models/ 后重跑）
+make build         # 编译后端二进制到 backend/bin/enterprise-admin
+make run           # 本地运行后端（默认 sqlite :8080）
+make tidy          # 整理 Go 依赖
+make dev-backend   # 启动后端开发服务（:8080）
+make dev-frontend  # 启动前端开发服务（:5173，代理 /api 到 :8080）
+make dev           # 同时启动前后端开发服务
 ```
 
 构建产物运行（需在 `backend/` 下执行，配置文件/数据库均走相对路径）：
