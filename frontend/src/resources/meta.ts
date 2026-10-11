@@ -61,6 +61,11 @@ const productStatusOptions: OptionMeta[] = [
   { label: "下架", labelKey: "common.productStatus.offSale", value: 0 },
 ];
 
+const yesNoOptions: OptionMeta[] = [
+  { label: "是", labelKey: "common.yes", value: "Y" },
+  { label: "否", labelKey: "common.no", value: "N" },
+];
+
 // --- Actions-mode resources (backed by zero-code CRUD on the backend) ---
 export const productMeta: ResourceMeta = {
   name: "demo/product", i18nKey: "product", permPrefix: "demo:product",
@@ -146,6 +151,26 @@ export const dictMeta: ResourceMeta = {
     { name: "name", label: "字典名", type: "text", searchable: true, required: true },
     { name: "type", label: "类型", type: "text", searchable: true, required: true },
     { name: "status", label: "状态", type: "switch", options: statusOptions, width: 90 },
+    { name: "remark", label: "备注", type: "textarea", hideInTable: true },
+  ],
+};
+
+// System parameter: Actions-mode resource (backend zero-code CRUD on sys/config).
+// configValue stays a plain input (values mix text/numbers/flags).
+export const configMeta: ResourceMeta = {
+  name: "sys/config", i18nKey: "config", permPrefix: "sys:config",
+
+  title: "参数管理",
+  path: "/system/config",
+  icon: "config",
+  group: "系统管理",
+  fields: [
+    { name: "id", label: "ID", type: "number", hideInForm: true, width: 70 },
+    { name: "configName", label: "参数名", type: "text", searchable: true, required: true },
+    { name: "configKey", label: "参数键", type: "text", searchable: true, required: true },
+    { name: "configValue", label: "参数值", type: "text" },
+    { name: "configType", label: "内置", type: "select", options: yesNoOptions, width: 90 },
+    { name: "isFrontend", label: "前台可读", type: "switch", width: 100 },
     { name: "remark", label: "备注", type: "textarea", hideInTable: true },
   ],
 };

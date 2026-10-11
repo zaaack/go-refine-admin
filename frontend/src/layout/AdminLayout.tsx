@@ -12,6 +12,8 @@ import {
   Input,
   List,
   Form,
+  Table,
+  Tag,
   message,
   Tooltip,
 } from "antd";
@@ -31,6 +33,11 @@ import {
   FolderOutlined,
   MenuOutlined,
   HomeOutlined,
+  FileTextOutlined,
+  LoginOutlined,
+  TeamOutlined,
+  CloudServerOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -54,6 +61,11 @@ const ICONS: Record<string, React.ReactNode> = {
   apartment: <ApartmentOutlined />,
   book: <BookOutlined />,
   menu: <MenuOutlined />,
+  log: <FileTextOutlined />,
+  login: <LoginOutlined />,
+  online: <TeamOutlined />,
+  server: <CloudServerOutlined />,
+  config: <ToolOutlined />,
 };
 
 function iconOf(name?: string): React.ReactNode {
@@ -88,6 +100,11 @@ export default function AdminLayout() {
   const [searchText, setSearchText] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
   const [pwdOpen, setPwdOpen] = useState(false);
+  const [loginLogOpen, setLoginLogOpen] = useState(false);
+  const [myLogs, setMyLogs] = useState<any[]>([]);
+  const [myLogsTotal, setMyLogsTotal] = useState(0);
+  const [myLogsPage, setMyLogsPage] = useState(1);
+  const [myLogsLoading, setMyLogsLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [profileForm] = Form.useForm();
   const [pwdForm] = Form.useForm();
@@ -215,6 +232,26 @@ export default function AdminLayout() {
     }
   };
 
+  const openMyLoginLog = async (p: number) => {
+    const name = String((identity as any)?.name ?? "");
+    if (!name) return;
+    setLoginLogOpen(true);
+    setMyLogsLoading(true);
+    try {
+      const res = await apiAxios.get("/api/v1/sys/login-log", {
+        params: { username__eq: name, page: p, pageSize: 10 },
+      });
+      const d = (res.data as any)?.data ?? {};
+      setMyLogs(d.list ?? []);
+      setMyLogsTotal(d.total ?? 0);
+      setMyLogsPage(p);
+    } catch (e: any) {
+      message.error(backendErrorMessage(e));
+    } finally {
+      setMyLogsLoading(false);
+    }
+  };
+
   const savePassword = async () => {
     try {
       const v = await pwdForm.validateFields();
@@ -247,11 +284,13 @@ export default function AdminLayout() {
     items: [
       { key: "profile", label: t("layout.profile") },
       { key: "password", label: t("layout.changePassword") },
+      { key: "loginlog", label: t("layout.loginLog") },
       { type: "divider" as const },
       { key: "logout", label: t("layout.logout"), danger: true },
     ],
     onClick: ({ key }: { key: string }) => {
       if (key === "profile") void openProfile();
+      else if (key === "loginlog") void openMyLoginLog(1);
       else if (key === "password") {
         pwdForm.resetFields();
         setPwdOpen(true);
@@ -442,6 +481,50 @@ export default function AdminLayout() {
             <Input.TextArea rows={2} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* 我的登录记录:仅当前用户的登录日志(只读) */}
+      <Modal
+        title={t("layout.loginLogTitle")}
+        open={loginLogOpen}
+        footer={null}
+        onCancel={() => setLoginLogOpen(false)}
+        width={860}
+        destroyOnClose
+      >
+        <Table
+          rowKey="id"
+          size="small"
+          loading={myLogsLoading}
+          dataSource={myLogs}
+          scroll={{ x: "max-content" }}
+          pagination={{
+            current: myLogsPage,
+            pageSize: 10,
+            total: myLogsTotal,
+            onChange: (p) => openMyLoginLog(p),
+          }}
+        >
+          <Table.Column
+            dataIndex="createdAt"
+            title={t("loginlog.createdAt")}
+            width={170}
+            render={(v: string) => (v ? new Date(v).toLocaleString() : "")}
+          />
+          <Table.Column dataIndex="ip" title={t("loginlog.ip")} width={140} />
+          <Table.Column dataIndex="location" title={t("loginlog.location")} width={120} />
+          <Table.Column dataIndex="browser" title={t("loginlog.browser")} width={110} />
+          <Table.Column dataIndex="os" title={t("loginlog.os")} width={110} />
+          <Table.Column
+            dataIndex="status"
+            title={t("loginlog.status")}
+            width={90}
+            render={(v: number) =>
+              v === 0 ? <Tag color="green">{t("loginlog.success")}</Tag> : <Tag color="red">{t("loginlog.fail")}</Tag>
+            }
+          />
+          <Table.Column dataIndex="msg" title={t("loginlog.msg")} ellipsis />
+        </Table>
       </Modal>
 
       {/* 修改密码 */}

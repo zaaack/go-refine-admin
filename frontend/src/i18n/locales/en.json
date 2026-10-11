@@ -15,6 +15,8 @@
     "changePassword": "Change password",
     "profileTitle": "Profile",
     "passwordTitle": "Change password",
+    "loginLog": "My login history",
+    "loginLogTitle": "My login history",
     "logoutConfirmTitle": "Confirm logout?",
     "logoutConfirmContent": "You will need to log in again to continue.",
     "save": "Save",
@@ -51,6 +53,10 @@
   "nav": {
     "dashboard": "Dashboard",
     "order": "Orders",
+    "operLog": "Operation logs",
+    "loginLog": "Login logs",
+    "online": "Online users",
+    "server": "Server monitor",
     "group": {
       "system": "System",
       "business": "Business Demo"
@@ -64,6 +70,81 @@
     "order": "Orders",
     "dict": "Dicts",
     "revenue": "Revenue"
+  },
+  "operlog": {
+    "title": "Operation logs",
+    "title_": "Title",
+    "method": "Method",
+    "path": "Path",
+    "username": "Username",
+    "ip": "IP",
+    "location": "Location",
+    "status": "Status",
+    "success": "Success",
+    "fail": "Failed",
+    "statusCode": "HTTP code",
+    "duration": "Duration",
+    "body": "Body",
+    "errMsg": "Error",
+    "createdAt": "Created at",
+    "detail": "Detail",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this record?",
+    "deleted": "Deleted",
+    "clean": "Clean",
+    "cleanConfirm": "Clean ALL operation logs?",
+    "cleaned": "Cleaned"
+  },
+  "loginlog": {
+    "title": "Login logs",
+    "username": "Username",
+    "ip": "IP",
+    "location": "Location",
+    "browser": "Browser",
+    "os": "OS",
+    "device": "Device",
+    "status": "Status",
+    "success": "Success",
+    "fail": "Failed",
+    "msg": "Message",
+    "createdAt": "Login time",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this record?",
+    "deleted": "Deleted",
+    "clean": "Clean",
+    "cleanConfirm": "Clean ALL login logs?",
+    "cleaned": "Cleaned"
+  },
+  "online": {
+    "title": "Online users",
+    "username": "Username",
+    "ip": "IP",
+    "location": "Location",
+    "browser": "Browser",
+    "os": "OS",
+    "device": "Device",
+    "loginTime": "Login time",
+    "expireAt": "Expires at",
+    "refresh": "Refresh",
+    "forceOffline": "Kick",
+    "offlineConfirm": "Force this user offline?",
+    "offlineSuccess": "Forced offline"
+  },
+  "server": {
+    "title": "Server monitor",
+    "refresh": "Refresh",
+    "os": "Server info",
+    "hostName": "Hostname",
+    "goOs": "OS / Arch",
+    "goVersion": "Go version",
+    "ip": "IP",
+    "bootTime": "Uptime (hours)",
+    "time": "Server time",
+    "cpu": "CPU",
+    "cpuNum": "Cores",
+    "cpuModel": "Model",
+    "mem": "Memory",
+    "disk": "Disk"
   },
   "order": {
     "title": "Orders (regular mode · hand-written logic)",
@@ -114,6 +195,8 @@
     "operationFailed": "Action failed",
     "captchaFailed": "Failed to load captcha",
     "requestFailed": "Request failed",
+    "yes": "Yes",
+    "no": "No",
     "status": {
       "enabled": "Enabled",
       "disabled": "Disabled"
@@ -124,6 +207,18 @@
     }
   },
   "resources": {
+    "config": {
+      "title": "Parameters",
+      "fields": {
+        "id": "ID",
+        "configName": "Name",
+        "configKey": "Key",
+        "configValue": "Value",
+        "configType": "Built-in",
+        "isFrontend": "Frontend visible",
+        "remark": "Remark"
+      }
+    },
     "product": {
       "title": "Products",
       "fields": {
@@ -206,6 +301,14 @@
     "SysDictCreate": "Create dict",
     "SysDictEdit": "Edit dict",
     "SysDictDelete": "Delete dict",
+    "SysOperLog": "Operation logs",
+    "SysLoginLog": "Login logs",
+    "SysOnline": "Online users",
+    "SysServer": "Server monitor",
+    "SysConfig": "Parameters",
+    "SysConfigCreate": "Create parameter",
+    "SysConfigEdit": "Edit parameter",
+    "SysConfigDelete": "Delete parameter",
     "Demo": "Business Demo",
     "Product": "Products (Actions)",
     "ProductCreate": "Create product",

@@ -1,6 +1,8 @@
 package db
 
 import (
+	"strings"
+
 	"go-refine-admin/backend/models"
 	"gorm.io/gorm"
 )
@@ -143,7 +145,92 @@ func seed(gdb *gorm.DB) error {
 			return err
 		}
 	}
+
+	// Monitor + config menus: idempotent, so pre-existing databases get them too.
+	if err := ensureMonitorMenus(gdb); err != nil {
+		return err
+	}
 	return nil
+}
+
+// ensureMonitorMenus creates the monitor/config menu nodes when missing and
+// grants them to the admin role. Name-keyed (not id-keyed) so it is safe to
+// run on every boot against both fresh and existing databases.
+func ensureMonitorMenus(gdb *gorm.DB) error {
+	var system models.SysMenu
+	if err := gdb.Where("name = ?", "System").First(&system).Error; err != nil {
+		return nil // no system tree yet; fresh seed will create everything
+	}
+	defs := []models.SysMenu{
+		{Name: "SysOperLog", Title: "操作日志", Icon: "log", Path: "/monitor/oper-log", Component: "monitor/oper-log", ParentID: system.ID, Sort: 6, Type: "C", Status: 1},
+		{Name: "SysLoginLog", Title: "登录日志", Icon: "login", Path: "/monitor/login-log", Component: "monitor/login-log", ParentID: system.ID, Sort: 7, Type: "C", Status: 1},
+		{Name: "SysOnline", Title: "在线用户", Icon: "online", Path: "/monitor/online", Component: "monitor/online", ParentID: system.ID, Sort: 8, Type: "C", Status: 1},
+		{Name: "SysServer", Title: "服务监控", Icon: "server", Path: "/monitor/server", Component: "monitor/server", ParentID: system.ID, Sort: 9, Type: "C", Status: 1},
+		{Name: "SysConfig", Title: "参数管理", Icon: "config", Path: "/system/config", Component: "system/config", ParentID: system.ID, Sort: 10, Type: "C", Status: 1},
+	}
+	var configID uint
+	for i := range defs {
+		var m models.SysMenu
+		if err := gdb.Where("name = ?", defs[i].Name).First(&m).Error; err != nil {
+			if err := gdb.Create(&defs[i]).Error; err != nil {
+				return err
+			}
+			m = defs[i]
+		}
+		if defs[i].Name == "SysConfig" {
+			configID = m.ID
+		}
+	}
+	fdefs := []models.SysMenu{
+		{Name: "SysConfigCreate", Title: "参数新增", Permission: "sys:config:create", ParentID: configID, Sort: 1, Type: "F", Status: 1},
+		{Name: "SysConfigEdit", Title: "参数编辑", Permission: "sys:config:edit", ParentID: configID, Sort: 2, Type: "F", Status: 1},
+		{Name: "SysConfigDelete", Title: "参数删除", Permission: "sys:config:delete", ParentID: configID, Sort: 3, Type: "F", Status: 1},
+	}
+	var newIDs []string
+	for i := range fdefs {
+		var m models.SysMenu
+		if err := gdb.Where("name = ?", fdefs[i].Name).First(&m).Error; err != nil {
+			fdefs[i].ParentID = configID
+			if err := gdb.Create(&fdefs[i]).Error; err != nil {
+				return err
+			}
+			m = fdefs[i]
+		}
+		newIDs = append(newIDs, uintToStr(m.ID))
+	}
+	for i := range defs {
+		var m models.SysMenu
+		gdb.Where("name = ?", defs[i].Name).First(&m)
+		if m.ID != 0 {
+			newIDs = append(newIDs, uintToStr(m.ID))
+		}
+	}
+	var admin models.SysRole
+	if err := gdb.Where("role_key = ?", "admin").First(&admin).Error; err != nil {
+		return nil
+	}
+	have := map[string]bool{}
+	for _, id := range splitMenuIDs(admin.MenuIDs) {
+		have[id] = true
+	}
+	ids := admin.MenuIDs
+	for _, id := range newIDs {
+		if !have[id] {
+			ids += "," + id
+			have[id] = true
+		}
+	}
+	return gdb.Model(&admin).Update("menu_ids", trimComma(ids)).Error
+}
+
+func splitMenuIDs(s string) []string {
+	var out []string
+	for _, p := range strings.Split(s, ",") {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }
 
 func uintToStr(u uint) string {

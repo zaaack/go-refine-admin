@@ -1,5 +1,5 @@
 import type { AuthProvider } from "@refinedev/core";
-import { authApi, unwrap } from "../api/client";
+import { apiAxios, authApi, unwrap } from "../api/client";
 import { backendErrorMessage } from "../i18n";
 
 // JWT auth provider. Login goes through the generated AuthApi
@@ -32,6 +32,13 @@ export const authProvider: AuthProvider = {
     }
   },
   logout: async () => {
+    // Best-effort server-side logout: marks the token offline so it cannot be
+    // reused. Local cleanup happens regardless of the outcome.
+    try {
+      if (localStorage.getItem("token")) await apiAxios.post("/api/v1/logout");
+    } catch {
+      /* offline or already invalidated: still clear local state */
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("perms");

@@ -24,6 +24,11 @@ const resources = [
   { name: "sys/role", list: "/system/role", canDelete: true },
   { name: "sys/dept", list: "/system/dept", canDelete: true },
   { name: "sys/dict", list: "/system/dict", canDelete: true },
+  { name: "sys/config", list: "/system/config", canDelete: true },
+  { name: "sys/oper-log", list: "/monitor/oper-log" },
+  { name: "sys/login-log", list: "/monitor/login-log" },
+  { name: "auth/online", list: "/monitor/online" },
+  { name: "server-monitor", list: "/monitor/server" },
 ];
 
 // AntdLocale follows the react-i18next language so antd built-ins

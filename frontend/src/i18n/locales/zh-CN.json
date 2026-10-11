@@ -15,6 +15,8 @@
     "changePassword": "修改密码",
     "profileTitle": "个人信息",
     "passwordTitle": "修改密码",
+    "loginLog": "我的登录记录",
+    "loginLogTitle": "我的登录记录",
     "logoutConfirmTitle": "确认退出登录吗?",
     "logoutConfirmContent": "退出后需要重新登录才能继续使用。",
     "save": "保存",
@@ -51,6 +53,10 @@
   "nav": {
     "dashboard": "仪表盘",
     "order": "订单管理",
+    "operLog": "操作日志",
+    "loginLog": "登录日志",
+    "online": "在线用户",
+    "server": "服务监控",
     "group": {
       "system": "系统管理",
       "business": "业务示例"
@@ -64,6 +70,81 @@
     "order": "订单",
     "dict": "字典",
     "revenue": "营收"
+  },
+  "operlog": {
+    "title": "操作日志",
+    "title_": "标题",
+    "method": "方法",
+    "path": "路径",
+    "username": "用户名",
+    "ip": "IP",
+    "location": "地点",
+    "status": "状态",
+    "success": "成功",
+    "fail": "失败",
+    "statusCode": "状态码",
+    "duration": "耗时",
+    "body": "请求体",
+    "errMsg": "错误信息",
+    "createdAt": "创建时间",
+    "detail": "详情",
+    "delete": "删除",
+    "deleteConfirm": "确认删除这条记录吗?",
+    "deleted": "已删除",
+    "clean": "清空",
+    "cleanConfirm": "确认清空全部操作日志吗?",
+    "cleaned": "已清空"
+  },
+  "loginlog": {
+    "title": "登录日志",
+    "username": "用户名",
+    "ip": "IP",
+    "location": "地点",
+    "browser": "浏览器",
+    "os": "系统",
+    "device": "设备",
+    "status": "状态",
+    "success": "成功",
+    "fail": "失败",
+    "msg": "信息",
+    "createdAt": "登录时间",
+    "delete": "删除",
+    "deleteConfirm": "确认删除这条记录吗?",
+    "deleted": "已删除",
+    "clean": "清空",
+    "cleanConfirm": "确认清空全部登录日志吗?",
+    "cleaned": "已清空"
+  },
+  "online": {
+    "title": "在线用户",
+    "username": "用户名",
+    "ip": "IP",
+    "location": "地点",
+    "browser": "浏览器",
+    "os": "系统",
+    "device": "设备",
+    "loginTime": "登录时间",
+    "expireAt": "过期时间",
+    "refresh": "刷新",
+    "forceOffline": "强退",
+    "offlineConfirm": "确认将该用户强制下线吗?",
+    "offlineSuccess": "已强制下线"
+  },
+  "server": {
+    "title": "服务监控",
+    "refresh": "刷新",
+    "os": "服务器信息",
+    "hostName": "主机名",
+    "goOs": "系统/架构",
+    "goVersion": "Go 版本",
+    "ip": "IP",
+    "bootTime": "已运行(小时)",
+    "time": "服务器时间",
+    "cpu": "CPU",
+    "cpuNum": "核心数",
+    "cpuModel": "型号",
+    "mem": "内存",
+    "disk": "磁盘"
   },
   "order": {
     "title": "订单管理（常规模式 · 手写复杂逻辑）",
@@ -114,6 +195,8 @@
     "operationFailed": "操作失败",
     "captchaFailed": "验证码获取失败",
     "requestFailed": "请求失败",
+    "yes": "是",
+    "no": "否",
     "status": {
       "enabled": "启用",
       "disabled": "禁用"
@@ -124,6 +207,18 @@
     }
   },
   "resources": {
+    "config": {
+      "title": "参数管理",
+      "fields": {
+        "id": "ID",
+        "configName": "参数名",
+        "configKey": "参数键",
+        "configValue": "参数值",
+        "configType": "内置",
+        "isFrontend": "前台可读",
+        "remark": "备注"
+      }
+    },
     "product": {
       "title": "商品管理",
       "fields": {
@@ -206,6 +301,14 @@
     "SysDictCreate": "字典新增",
     "SysDictEdit": "字典编辑",
     "SysDictDelete": "字典删除",
+    "SysOperLog": "操作日志",
+    "SysLoginLog": "登录日志",
+    "SysOnline": "在线用户",
+    "SysServer": "服务监控",
+    "SysConfig": "参数管理",
+    "SysConfigCreate": "参数新增",
+    "SysConfigEdit": "参数编辑",
+    "SysConfigDelete": "参数删除",
     "Demo": "业务示例",
     "Product": "商品(Actions)",
     "ProductCreate": "商品新增",

@@ -1,7 +1,11 @@
 import React from "react";
-import { productMeta, userMeta, roleMeta, deptMeta, dictMeta } from "./resources/meta";
+import { productMeta, userMeta, roleMeta, deptMeta, dictMeta, configMeta } from "./resources/meta";
 import ResourcePage from "./pages/ResourcePage";
 import OrderPage from "./pages/OrderPage";
+import OperLogPage from "./pages/OperLogPage";
+import LoginLogPage from "./pages/LoginLogPage";
+import OnlinePage from "./pages/OnlinePage";
+import ServerPage from "./pages/ServerPage";
 import Dashboard from "./pages/Dashboard";
 
 // navItems is the single source of truth for both the sider menu and the
@@ -66,6 +70,19 @@ export const navItems: NavItem[] = [
     groupKey: "nav.group.system",
     element: <ResourcePage meta={dictMeta} />,
   },
+  {
+    path: configMeta.path,
+    title: configMeta.title,
+    titleKey: `resources.${configMeta.i18nKey}.title`,
+    icon: configMeta.icon,
+    group: configMeta.group,
+    groupKey: "nav.group.system",
+    element: <ResourcePage meta={configMeta} />,
+  },
+  { path: "/monitor/oper-log", title: "操作日志", titleKey: "nav.operLog", icon: "log", group: "系统管理", groupKey: "nav.group.system", element: <OperLogPage /> },
+  { path: "/monitor/login-log", title: "登录日志", titleKey: "nav.loginLog", icon: "login", group: "系统管理", groupKey: "nav.group.system", element: <LoginLogPage /> },
+  { path: "/monitor/online", title: "在线用户", titleKey: "nav.online", icon: "online", group: "系统管理", groupKey: "nav.group.system", element: <OnlinePage /> },
+  { path: "/monitor/server", title: "服务监控", titleKey: "nav.server", icon: "server", group: "系统管理", groupKey: "nav.group.system", element: <ServerPage /> },
 ];
 
 export function findNav(path: string): NavItem | undefined {
