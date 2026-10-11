@@ -1,0 +1,16 @@
+.gitignore
+.npmignore
+api.ts
+base.ts
+common.ts
+configuration.ts
+docs/ActionsApi.md
+docs/AuthApi.md
+docs/ControllersLoginRequest.md
+docs/DashboardApi.md
+docs/ModelsOrder.md
+docs/OrderApi.md
+docs/ResponseEnvelope.md
+docs/UploadApi.md
+git_push.sh
+index.ts

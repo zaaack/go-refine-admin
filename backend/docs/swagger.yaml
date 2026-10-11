@@ -1,0 +1,411 @@
+basePath: /api/v1
+definitions:
+  controllers.LoginRequest:
+    properties:
+      code:
+        description: captcha
+        example: "1234"
+        type: string
+      password:
+        example: admin123
+        type: string
+      username:
+        example: admin
+        type: string
+      uuid:
+        description: captcha id
+        example: captcha-id
+        type: string
+    type: object
+  models.Order:
+    properties:
+      amount:
+        type: number
+      channel:
+        type: string
+      createBy:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: integer
+      orderNo:
+        type: string
+      remark:
+        type: string
+      status:
+        description: pending|paid|shipped|done|cancel
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+      userId:
+        type: integer
+    type: object
+  response.Envelope:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Go + gin + gorm enterprise admin scaffold with Actions / regular dual-track
+    and type-safe queries.
+  title: Enterprise Admin API
+  version: "1.0"
+paths:
+  /{resource}:
+    get:
+      parameters:
+      - description: resource name, e.g. demo/product
+        in: path
+        name: resource
+        required: true
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        type: integer
+      - description: sort, e.g. -createdAt,name
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      summary: List resources (Actions mode)
+      tags:
+      - Actions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: resource name, e.g. demo/product
+        in: path
+        name: resource
+        required: true
+        type: string
+      - description: record
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      summary: Create resource (Actions mode)
+      tags:
+      - Actions
+  /{resource}/{id}:
+    delete:
+      parameters:
+      - description: resource name, e.g. demo/product
+        in: path
+        name: resource
+        required: true
+        type: string
+      - description: primary key(s), comma-separated
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      summary: Delete resource (Actions mode)
+      tags:
+      - Actions
+    get:
+      parameters:
+      - description: resource name, e.g. demo/product
+        in: path
+        name: resource
+        required: true
+        type: string
+      - description: primary key
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      summary: Get one resource (Actions mode)
+      tags:
+      - Actions
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: resource name, e.g. demo/product
+        in: path
+        name: resource
+        required: true
+        type: string
+      - description: primary key
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: record
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      summary: Update resource (Actions mode)
+      tags:
+      - Actions
+  /captcha:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      summary: 获取验证码
+      tags:
+      - Auth
+  /dashboard/stats:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      security:
+      - Bearer: []
+      summary: Dashboard stats
+      tags:
+      - Dashboard
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      summary: Login
+      tags:
+      - Auth
+  /me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      security:
+      - Bearer: []
+      summary: Current user
+      tags:
+      - Auth
+  /menu/tree:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      security:
+      - Bearer: []
+      summary: Menu tree (role-scoped)
+      tags:
+      - Auth
+  /order:
+    get:
+      parameters:
+      - description: min amount
+        in: query
+        name: minAmount
+        type: number
+      - description: status, repeatable
+        in: query
+        name: status
+        type: string
+      - description: channel
+        in: query
+        name: channel
+        type: string
+      - description: created >= (RFC3339)
+        in: query
+        name: start
+        type: string
+      - description: created <= (RFC3339)
+        in: query
+        name: end
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      security:
+      - Bearer: []
+      summary: List orders (regular mode) with summary
+      tags:
+      - Order
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: order
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      security:
+      - Bearer: []
+      summary: Create order
+      tags:
+      - Order
+  /order/{id}:
+    delete:
+      parameters:
+      - description: order id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      security:
+      - Bearer: []
+      summary: Delete order
+      tags:
+      - Order
+  /order/{id}/paid:
+    put:
+      parameters:
+      - description: order id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      security:
+      - Bearer: []
+      summary: Mark order paid
+      tags:
+      - Order
+  /order/stats:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      security:
+      - Bearer: []
+      summary: Order stats by status
+      tags:
+      - Order
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Envelope'
+      security:
+      - Bearer: []
+      summary: Upload a file
+      tags:
+      - Upload
+schemes:
+- http
+securityDefinitions:
+  Bearer:
+    description: '"Type ''Bearer <token>'' to authorize."'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

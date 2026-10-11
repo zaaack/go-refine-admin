@@ -1,0 +1,141 @@
+// Resource metadata describes a CRUD resource to the auto-generated pages. One
+// description drives the list table, the search form and the create/edit form —
+// this is the front-end counterpart of the backend's Actions mode (zero-code).
+//
+//   - name : refine resource id AND backend path segment (e.g. "demo/product")
+//   - path : route path used by the multi-tab router (e.g. "/demo/product")
+//   - fields: columns / form items
+
+export type FieldType =
+  | "text"
+  | "number"
+  | "textarea"
+  | "password"
+  | "switch"
+  | "datetime"
+  | "select"
+  | "menutree"; // menu-permission tree (role -> menu binding)
+
+export interface FieldMeta {
+  name: string; // backend field name (used in filters/sorters)
+  label: string;
+  type: FieldType;
+  searchable?: boolean; // show in the search form
+  sortable?: boolean; // allow column sorting
+  required?: boolean; // required on create/edit
+  options?: { label: string; value: any }[]; // for select
+  hideInForm?: boolean;
+  hideInTable?: boolean;
+  width?: number;
+}
+
+export interface ResourceMeta {
+  name: string;
+  title: string;
+  path: string;
+  icon?: string;
+  group?: string; // menu group
+  // Backend write-permission prefix (F-node perms). When set, the auto page
+  // hides 新建/编辑/删除 for users lacking <prefix>:create/:edit/:delete.
+  permPrefix?: string;
+  fields: FieldMeta[];
+}
+
+const statusOptions = [
+  { label: "启用", value: 1 },
+  { label: "禁用", value: 0 },
+];
+
+const productStatusOptions = [
+  { label: "在售", value: 1 },
+  { label: "下架", value: 0 },
+];
+
+// --- Actions-mode resources (backed by zero-code CRUD on the backend) ---
+export const productMeta: ResourceMeta = {
+  name: "demo/product",  permPrefix: "demo:product",
+
+  title: "商品管理",
+  path: "/demo/product",
+  icon: "appstore",
+  group: "业务示例",
+  fields: [
+    { name: "id", label: "ID", type: "number", hideInForm: true, sortable: true, width: 70 },
+    { name: "name", label: "名称", type: "text", searchable: true, sortable: true },
+    { name: "sku", label: "SKU", type: "text", searchable: true },
+    { name: "category", label: "分类", type: "text", searchable: true },
+    { name: "price", label: "价格", type: "number", sortable: true },
+    { name: "stock", label: "库存", type: "number", sortable: true },
+    { name: "status", label: "状态", type: "switch", options: productStatusOptions, width: 90 },
+    { name: "remark", label: "备注", type: "textarea", hideInTable: true },
+  ],
+};
+
+export const userMeta: ResourceMeta = {
+  name: "sys/user",  permPrefix: "sys:user",
+
+  title: "用户管理",
+  path: "/system/user",
+  icon: "user",
+  group: "系统管理",
+  fields: [
+    { name: "id", label: "ID", type: "number", hideInForm: true, width: 70 },
+    { name: "username", label: "用户名", type: "text", searchable: true, required: true },
+    { name: "password", label: "密码", type: "password", hideInTable: true },
+    { name: "nickName", label: "昵称", type: "text" },
+    { name: "phone", label: "手机号", type: "text", searchable: true },
+    { name: "email", label: "邮箱", type: "text" },
+    { name: "status", label: "状态", type: "switch", options: statusOptions, width: 90 },
+    { name: "remark", label: "备注", type: "textarea", hideInTable: true },
+  ],
+};
+
+export const roleMeta: ResourceMeta = {
+  name: "sys/role",  permPrefix: "sys:role",
+
+  title: "角色管理",
+  path: "/system/role",
+  icon: "safety",
+  group: "系统管理",
+  fields: [
+    { name: "id", label: "ID", type: "number", hideInForm: true, width: 70 },
+    { name: "name", label: "角色名", type: "text", searchable: true, required: true },
+    { name: "roleKey", label: "角色标识", type: "text", required: true },
+    { name: "status", label: "状态", type: "switch", options: statusOptions, width: 90 },
+    { name: "sort", label: "排序", type: "number" },
+    { name: "menuIds", label: "菜单权限", type: "menutree", hideInTable: true },
+    { name: "remark", label: "备注", type: "textarea", hideInTable: true },
+  ],
+};
+
+export const deptMeta: ResourceMeta = {
+  name: "sys/dept",  permPrefix: "sys:dept",
+
+  title: "部门管理",
+  path: "/system/dept",
+  icon: "apartment",
+  group: "系统管理",
+  fields: [
+    { name: "id", label: "ID", type: "number", hideInForm: true, width: 70 },
+    { name: "name", label: "部门名", type: "text", searchable: true, required: true },
+    { name: "leader", label: "负责人", type: "text" },
+    { name: "phone", label: "电话", type: "text" },
+    { name: "status", label: "状态", type: "switch", options: statusOptions, width: 90 },
+  ],
+};
+
+export const dictMeta: ResourceMeta = {
+  name: "sys/dict",  permPrefix: "sys:dict",
+
+  title: "字典管理",
+  path: "/system/dict",
+  icon: "book",
+  group: "系统管理",
+  fields: [
+    { name: "id", label: "ID", type: "number", hideInForm: true, width: 70 },
+    { name: "name", label: "字典名", type: "text", searchable: true, required: true },
+    { name: "type", label: "类型", type: "text", searchable: true, required: true },
+    { name: "status", label: "状态", type: "switch", options: statusOptions, width: 90 },
+    { name: "remark", label: "备注", type: "textarea", hideInTable: true },
+  ],
+};

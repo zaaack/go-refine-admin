@@ -1,0 +1,13 @@
+# deps / build
+node_modules/
+dist/
+
+# binaries / editor backups
+*.exe
+*.exe~
+*~
+
+# env / logs / OS
+*.local
+*.log
+.DS_Store

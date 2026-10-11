@@ -1,0 +1,18 @@
+# Go build outputs
+*.exe
+*.exe~
+*~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/bin/
+enterprise-admin
+
+# local runtime data
+enterprise-admin.db
+uploads/
+
+# Go workspace
+go.work.sum

@@ -1,0 +1,15 @@
+# backend
+backend/enterprise-admin.db
+backend/uploads/
+backend/bin/
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+
+# misc
+*.log
+.DS_Store
+*.exe
+*.exe~
+*~

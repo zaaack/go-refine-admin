@@ -1,0 +1,45 @@
+# enterprise-admin backend configuration
+server:
+  mode: debug            # debug | release
+  host: 0.0.0.0
+  port: 8080
+
+jwt:
+  secret: "enterprise-admin-secret-change-me"
+  timeout: 720h          # token lifetime
+  issuer: "enterprise-admin"
+
+database:
+  # sqlite | mysql | postgres
+  driver: sqlite
+  # sqlite file (used when driver=sqlite)
+  sqlite:
+    path: "./enterprise-admin.db"
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    username: root
+    password: root
+    database: enterprise_admin
+    charset: utf8mb4
+    parseTime: true
+  postgres:
+    host: 127.0.0.1
+    port: 5432
+    username: postgres
+    password: postgres
+    database: enterprise_admin
+    sslmode: disable
+
+cors:
+  allowOrigins:
+    - "*"
+  allowMethods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowHeaders:
+    - Authorization
+    - Content-Type
