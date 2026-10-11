@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"go-refine-admin/backend/config"
 	"go-refine-admin/backend/core/auth"
+	ii18n "go-refine-admin/backend/core/i18n"
 	"go-refine-admin/backend/core/response"
 	"go-refine-admin/backend/models"
 
@@ -46,21 +46,21 @@ func Login(gdb *gorm.DB) gin.HandlerFunc {
 		// Captcha check, skipped in dev mode (same rule as go-admin).
 		if config.Get().Server.Mode != "dev" {
 			if !VerifyCaptcha(req.UUID, req.Code) {
-				response.Error(c, http.StatusUnauthorized, 401, errors.New("验证码错误"), "")
+				response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthCaptchaInvalid, nil, "验证码错误")
 				return
 			}
 		}
 		var u models.SysUser
 		if err := gdb.Where("username = ?", req.Username).First(&u).Error; err != nil {
-			response.Error(c, http.StatusUnauthorized, 401, errors.New("用户名或密码错误"), "")
+			response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthInvalidCredentials, nil, "用户名或密码错误")
 			return
 		}
 		if u.Status != 1 {
-			response.Error(c, http.StatusForbidden, 403, errors.New("账号已被禁用"), "")
+			response.ErrorKey(c, http.StatusForbidden, 403, ii18n.AuthAccountDisabled, nil, "账号已被禁用")
 			return
 		}
 		if !u.ComparePassword(req.Password) {
-			response.Error(c, http.StatusUnauthorized, 401, errors.New("用户名或密码错误"), "")
+			response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthInvalidCredentials, nil, "用户名或密码错误")
 			return
 		}
 		var role models.SysRole
@@ -131,7 +131,7 @@ func rolePerms(gdb *gorm.DB, role models.SysRole) []string {
 func Me(c *gin.Context) {
 	claims := auth.GetClaims(c)
 	if claims == nil {
-		response.Error(c, http.StatusUnauthorized, 401, errors.New("unauthorized"), "")
+		response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthUnauthorized, nil, "unauthorized")
 		return
 	}
 	response.OK(c, gin.H{

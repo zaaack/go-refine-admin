@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { usePermissions } from "@refinedev/core";
 import { useTable, useForm, CreateButton, EditButton, DeleteButton } from "@refinedev/antd";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Table, Form, Input, InputNumber, Select, Switch, Drawer, Button, Space, Card } from "antd";
 import MenuTreeSelect from "../components/MenuTreeSelect";
 import { can } from "../utils/perm";
@@ -9,7 +11,10 @@ import type { FieldMeta, ResourceMeta } from "../resources/meta";
 // ResourcePage is the auto-generated CRUD UI driven entirely by ResourceMeta.
 // It is the front-end half of the backend's Actions mode: one component renders
 // the list, search and create/edit form for any resource with no per-resource code.
+// Labels resolve as t(`resources.${meta.i18nKey}.title|fields.${name}`) with the
+// meta text as fallback, so dictionaries stay in sync per language.
 export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
+  const { t } = useTranslation();
   const [drawer, setDrawer] = useState<{ open: boolean; id?: string }>({ open: false });
   const [searchForm] = Form.useForm();
   const { data: perms } = usePermissions<string[]>();
@@ -18,6 +23,10 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
   const canCreate = !pre || can(perms, `${pre}:create`);
   const canEdit = !pre || can(perms, `${pre}:edit`);
   const canDelete = !pre || can(perms, `${pre}:delete`);
+
+  const title = t(`resources.${meta.i18nKey}.title`, { defaultValue: meta.title });
+  const fieldLabel = (f: FieldMeta) =>
+    t(`resources.${meta.i18nKey}.fields.${f.name}`, { defaultValue: f.label });
 
   const { tableProps, tableQueryResult, setFilters } = useTable({
     resource: meta.name,
@@ -47,13 +56,14 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
       meta.fields
         .filter((f) => !f.hideInTable)
         .map((f) => ({
-          title: f.label,
+          title: fieldLabel(f),
           dataIndex: f.name,
           width: f.width,
           sorter: f.sortable || undefined,
-          render: (val: any) => renderCell(f, val),
+          render: (val: any) => renderCell(f, val, t),
         })),
-    [meta.fields]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [meta.fields, meta.i18nKey, t]
   );
 
   const onSearch = (values: any) => {
@@ -71,11 +81,11 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
 
   return (
     <Card
-      title={meta.title}
+      title={title}
       extra={
         canCreate ? (
           <CreateButton resource={meta.name} onClick={() => setDrawer({ open: true })}>
-            新建
+            {t("resource.new")}
           </CreateButton>
         ) : undefined
       }
@@ -84,14 +94,14 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
         {meta.fields
           .filter((f) => f.searchable)
           .map((f) => (
-            <Form.Item key={f.name} name={f.name} label={f.label}>
-              {renderSearchInput(f)}
+            <Form.Item key={f.name} name={f.name} label={fieldLabel(f)}>
+              {renderSearchInput(f, t)}
             </Form.Item>
           ))}
         <Form.Item>
           <Space>
             <Button type="primary" htmlType="submit">
-              搜索
+              {t("resource.search")}
             </Button>
             <Button
               onClick={() => {
@@ -99,7 +109,7 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
                 onSearch({});
               }}
             >
-              重置
+              {t("resource.reset")}
             </Button>
           </Space>
         </Form.Item>
@@ -110,7 +120,7 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
           <Table.Column key={c.dataIndex as string} {...c} />
         ))}
         <Table.Column
-          title="操作"
+          title={t("resource.actions")}
           fixed="right"
           width={140}
           render={(_: any, record: any) => (
@@ -138,13 +148,13 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
       </Table>
 
       <Drawer
-        title={drawer.id ? `编辑${meta.title}` : `新建${meta.title}`}
+        title={drawer.id ? t("resource.editTitle", { title }) : t("resource.newTitle", { title })}
         width={520}
         open={drawer.open}
         onClose={() => setDrawer({ open: false })}
         extra={
           <Button {...saveButtonProps} type="primary">
-            保存
+            {t("resource.save")}
           </Button>
         }
       >
@@ -155,11 +165,11 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
               <Form.Item
                 key={f.name}
                 name={f.name}
-                label={f.label}
+                label={fieldLabel(f)}
                 valuePropName={f.type === "switch" ? "checked" : "value"}
-                rules={f.required ? [{ required: true, message: `请输入${f.label}` }] : []}
+                rules={f.required ? [{ required: true, message: t("resource.required", { label: fieldLabel(f) }) }] : []}
               >
-                {renderFormInput(f)}
+                {renderFormInput(f, t)}
               </Form.Item>
             ))}
         </Form>
@@ -168,7 +178,7 @@ export default function ResourcePage({ meta }: { meta: ResourceMeta }) {
   );
 }
 
-function renderCell(f: FieldMeta, val: any) {
+function renderCell(f: FieldMeta, val: any, t: TFunction) {
   if (f.type === "switch") {
     return <Switch checked={!!val} disabled />;
   }
@@ -176,10 +186,11 @@ function renderCell(f: FieldMeta, val: any) {
     const count = String(val ?? "")
       .split(",")
       .filter(Boolean).length;
-    return count ? `${count} 项菜单` : "-";
+    return count ? t("resource.menusCount", { count }) : t("resource.none");
   }
   if (f.type === "select" && f.options) {
-    return f.options.find((o) => o.value === val)?.label ?? val;
+    const hit = f.options.find((o) => o.value === val);
+    return hit ? t(hit.labelKey, { defaultValue: hit.label }) : val;
   }
   if (f.type === "datetime" && val) {
     return new Date(val).toLocaleString();
@@ -187,9 +198,10 @@ function renderCell(f: FieldMeta, val: any) {
   return val;
 }
 
-function renderSearchInput(f: FieldMeta) {
+function renderSearchInput(f: FieldMeta, t: TFunction) {
   if (f.type === "select" && f.options) {
-    return <Select allowClear options={f.options} style={{ width: 160 }} />;
+    const options = f.options.map((o) => ({ label: t(o.labelKey, { defaultValue: o.label }), value: o.value }));
+    return <Select allowClear options={options} style={{ width: 160 }} />;
   }
   if (f.type === "number") {
     return <InputNumber style={{ width: 160 }} />;
@@ -197,7 +209,7 @@ function renderSearchInput(f: FieldMeta) {
   return <Input allowClear style={{ width: 160 }} />;
 }
 
-function renderFormInput(f: FieldMeta) {
+function renderFormInput(f: FieldMeta, t: TFunction) {
   switch (f.type) {
     case "number":
       return <InputNumber style={{ width: "100%" }} />;
@@ -207,10 +219,10 @@ function renderFormInput(f: FieldMeta) {
       return <Input.Password />;
     case "switch":
       return <Switch />;
-    case "select":
-      return <Select options={f.options} allowClear />;
-    case "menutree":
-      return <MenuTreeSelect />;
+    case "select": {
+      const options = (f.options ?? []).map((o) => ({ label: t(o.labelKey, { defaultValue: o.label }), value: o.value }));
+      return <Select options={options} allowClear />;
+    }
     default:
       return <Input />;
   }

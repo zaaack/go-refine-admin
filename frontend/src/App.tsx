@@ -4,7 +4,11 @@ import routerProvider, { CatchAllNavigate } from "@refinedev/react-router-v6";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ConfigProvider } from "antd";
 import zhCN from "antd/locale/zh_CN";
+import enUS from "antd/locale/en_US";
+import { useTranslation } from "react-i18next";
 
+import "./i18n";
+import { refineI18nProvider } from "./i18n";
 import { dataProvider } from "./providers/dataProvider";
 import { authProvider } from "./providers/authProvider";
 import { TabsProvider } from "./context/TabsContext";
@@ -22,14 +26,22 @@ const resources = [
   { name: "sys/dict", list: "/system/dict", canDelete: true },
 ];
 
+// AntdLocale follows the react-i18next language so antd built-ins
+// (pagination, table, dates) switch zh-CN/en together with our UI.
+function AntdLocale({ children }: { children: React.ReactNode }) {
+  const { i18n } = useTranslation();
+  return <ConfigProvider locale={i18n.language === "en" ? enUS : zhCN}>{children}</ConfigProvider>;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
-      <ConfigProvider locale={zhCN}>
+      <AntdLocale>
         <Refine
           dataProvider={dataProvider}
           authProvider={authProvider}
           routerProvider={routerProvider}
+          i18nProvider={refineI18nProvider}
           resources={resources}
           options={{
             syncWithLocation: false,
@@ -60,7 +72,7 @@ export default function App() {
             </Routes>
           </TabsProvider>
         </Refine>
-      </ConfigProvider>
+      </AntdLocale>
     </BrowserRouter>
   );
 }

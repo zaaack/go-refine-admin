@@ -1,0 +1,223 @@
+{
+  "app": {
+    "title": "Go Refine Admin",
+    "shortTitle": "Admin",
+    "subtitle": "Enterprise admin scaffold · Actions / Regular dual-track"
+  },
+  "layout": {
+    "logout": "Logout",
+    "language": "Language"
+  },
+  "login": {
+    "title": "Go Refine Admin",
+    "username": "Username",
+    "password": "Password",
+    "captcha": "Captcha",
+    "usernamePh": "admin",
+    "passwordPh": "admin123",
+    "captchaPh": "4 digits",
+    "usernameRequired": "Please enter username",
+    "passwordRequired": "Please enter password",
+    "captchaRequired": "Please enter captcha",
+    "captchaAlt": "captcha",
+    "captchaTitle": "Click to refresh",
+    "submit": "Login",
+    "failed": "Login failed"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "order": "Orders",
+    "group": {
+      "system": "System",
+      "business": "Business Demo"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "user": "Users",
+    "role": "Roles",
+    "product": "Products",
+    "order": "Orders",
+    "dict": "Dicts",
+    "revenue": "Revenue"
+  },
+  "order": {
+    "title": "Orders (regular mode · hand-written logic)",
+    "total": "Total orders",
+    "totalAmount": "Total amount",
+    "paidAmount": "Paid amount",
+    "id": "ID",
+    "no": "Order No.",
+    "amount": "Amount",
+    "status": "Status",
+    "channel": "Channel",
+    "createdAt": "Created at",
+    "actions": "Actions",
+    "markPaid": "Mark paid",
+    "markedPaid": "Marked as paid",
+    "actionFailed": "Action failed",
+    "statusValue": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "shipped": "Shipped",
+      "done": "Done",
+      "cancel": "Canceled"
+    }
+  },
+  "resource": {
+    "new": "New",
+    "search": "Search",
+    "reset": "Reset",
+    "actions": "Actions",
+    "editTitle": "Edit {{title}}",
+    "newTitle": "New {{title}}",
+    "save": "Save",
+    "required": "Please enter {{label}}",
+    "menusCount": "{{count}} menus",
+    "none": "-",
+    "loading": "Loading..."
+  },
+  "menutree": {
+    "none": "None",
+    "read": "Read",
+    "write": "Write",
+    "directory": "Dir",
+    "hasSubmenu": "Has children",
+    "hint": "Three states per menu: none (invisible) / read-only / writable (incl. create, edit, delete buttons)",
+    "loading": "Loading..."
+  },
+  "common": {
+    "operationFailed": "Action failed",
+    "captchaFailed": "Failed to load captcha",
+    "requestFailed": "Request failed",
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "productStatus": {
+      "onSale": "On sale",
+      "offSale": "Off sale"
+    }
+  },
+  "resources": {
+    "product": {
+      "title": "Products",
+      "fields": {
+        "id": "ID",
+        "name": "Name",
+        "sku": "SKU",
+        "category": "Category",
+        "price": "Price",
+        "stock": "Stock",
+        "status": "Status",
+        "remark": "Remark"
+      }
+    },
+    "user": {
+      "title": "Users",
+      "fields": {
+        "id": "ID",
+        "username": "Username",
+        "password": "Password",
+        "nickName": "Nickname",
+        "phone": "Phone",
+        "email": "Email",
+        "status": "Status",
+        "remark": "Remark"
+      }
+    },
+    "role": {
+      "title": "Roles",
+      "fields": {
+        "id": "ID",
+        "name": "Role name",
+        "roleKey": "Role key",
+        "status": "Status",
+        "sort": "Sort",
+        "menuIds": "Menu permissions",
+        "remark": "Remark"
+      }
+    },
+    "dept": {
+      "title": "Departments",
+      "fields": {
+        "id": "ID",
+        "name": "Dept name",
+        "leader": "Leader",
+        "phone": "Phone",
+        "status": "Status"
+      }
+    },
+    "dict": {
+      "title": "Dicts",
+      "fields": {
+        "id": "ID",
+        "name": "Dict name",
+        "type": "Type",
+        "status": "Status",
+        "remark": "Remark"
+      }
+    }
+  },
+  "menu": {
+    "Dashboard": "Dashboard",
+    "System": "System",
+    "SysUser": "Users",
+    "SysUserCreate": "Create user",
+    "SysUserEdit": "Edit user",
+    "SysUserDelete": "Delete user",
+    "SysRole": "Roles",
+    "SysRoleCreate": "Create role",
+    "SysRoleEdit": "Edit role",
+    "SysRoleDelete": "Delete role",
+    "SysMenu": "Menus",
+    "SysMenuCreate": "Create menu",
+    "SysMenuEdit": "Edit menu",
+    "SysMenuDelete": "Delete menu",
+    "SysDept": "Departments",
+    "SysDeptCreate": "Create dept",
+    "SysDeptEdit": "Edit dept",
+    "SysDeptDelete": "Delete dept",
+    "SysDict": "Dicts",
+    "SysDictCreate": "Create dict",
+    "SysDictEdit": "Edit dict",
+    "SysDictDelete": "Delete dict",
+    "Demo": "Business Demo",
+    "Product": "Products (Actions)",
+    "ProductCreate": "Create product",
+    "ProductEdit": "Edit product",
+    "ProductDelete": "Delete product",
+    "Order": "Orders (Regular)",
+    "OrderCreate": "Create order",
+    "OrderPaid": "Pay order",
+    "OrderDelete": "Delete order"
+  },
+  "backend": {
+    "auth": {
+      "captchaInvalid": "Invalid captcha",
+      "invalidCredentials": "Invalid username or password",
+      "accountDisabled": "Account is disabled",
+      "unauthorized": "Unauthorized",
+      "missingToken": "Missing token",
+      "invalidToken": "Invalid token",
+      "forbiddenRole": "Insufficient role",
+      "missingPermission": "Missing permission {{perm}}"
+    },
+    "captcha": {
+      "generateFailed": "Failed to load captcha"
+    },
+    "role": {
+      "builtinImmutable": "Built-in admin role cannot be modified or deleted",
+      "adminKeyReserved": "Role key admin is reserved for the built-in super admin"
+    },
+    "order": {
+      "notFound": "Order not found",
+      "onlyPendingCanPay": "Only pending/canceled orders can be paid"
+    },
+    "common": {
+      "invalidId": "Invalid ID",
+      "notFound": "Record not found",
+      "noId": "No ID provided"
+    }
+  }
+}

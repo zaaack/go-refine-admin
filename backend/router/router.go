@@ -1,7 +1,6 @@
 package router
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"go-refine-admin/backend/controllers"
 	"go-refine-admin/backend/core/actions"
 	"go-refine-admin/backend/core/auth"
+	ii18n "go-refine-admin/backend/core/i18n"
 	"go-refine-admin/backend/core/middleware"
 	"go-refine-admin/backend/models"
 
@@ -28,7 +28,7 @@ func rejectBuiltinRole(db *gorm.DB, ids string) error {
 	for _, p := range strings.Split(ids, ",") {
 		var role models.SysRole
 		if err := db.First(&role, strings.TrimSpace(p)).Error; err == nil && role.RoleKey == "admin" {
-			return errors.New("内置超级管理员角色不允许修改或删除")
+			return ii18n.E(ii18n.RoleBuiltinImmutable, "内置超级管理员角色不允许修改或删除")
 		}
 	}
 	return nil
@@ -99,7 +99,7 @@ func Build(db *gorm.DB) *gin.Engine {
 		actions.NewResource[models.SysRole](db).WithName("sys/role").WithPermPrefix("sys:role").WithHooks(actions.Hooks[models.SysRole]{
 			BeforeCreate: func(c *gin.Context, m *models.SysRole) error {
 				if m.RoleKey == "admin" {
-					return errors.New("角色标识 admin 为内置超级管理员，不可使用")
+					return ii18n.E(ii18n.RoleAdminKeyReserved, "角色标识 admin 为内置超级管理员，不可使用")
 				}
 				return nil
 			},

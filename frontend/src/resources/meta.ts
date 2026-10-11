@@ -18,12 +18,12 @@ export type FieldType =
 
 export interface FieldMeta {
   name: string; // backend field name (used in filters/sorters)
-  label: string;
+  label: string; // fallback text; UI renders resources.${meta}.fields.${name}
   type: FieldType;
   searchable?: boolean; // show in the search form
   sortable?: boolean; // allow column sorting
   required?: boolean; // required on create/edit
-  options?: { label: string; value: any }[]; // for select
+  options?: OptionMeta[]; // for select
   hideInForm?: boolean;
   hideInTable?: boolean;
   width?: number;
@@ -31,7 +31,8 @@ export interface FieldMeta {
 
 export interface ResourceMeta {
   name: string;
-  title: string;
+  title: string; // fallback text; UI renders t(`resources.${i18nKey}.title`)
+  i18nKey: string; // e.g. "product" -> title/fields resolve under resources.*
   path: string;
   icon?: string;
   group?: string; // menu group
@@ -41,19 +42,28 @@ export interface ResourceMeta {
   fields: FieldMeta[];
 }
 
-const statusOptions = [
-  { label: "启用", value: 1 },
-  { label: "禁用", value: 0 },
+// Field labels resolve as t(`resources.${meta.i18nKey}.fields.${name}`) with
+// label as the fallback, so FieldMeta needs no key of its own. Select/switch
+// options are shared constants, so they carry explicit labelKeys.
+export interface OptionMeta {
+  label: string; // fallback text
+  labelKey: string; // e.g. "common.status.enabled"
+  value: any;
+}
+
+const statusOptions: OptionMeta[] = [
+  { label: "启用", labelKey: "common.status.enabled", value: 1 },
+  { label: "禁用", labelKey: "common.status.disabled", value: 0 },
 ];
 
-const productStatusOptions = [
-  { label: "在售", value: 1 },
-  { label: "下架", value: 0 },
+const productStatusOptions: OptionMeta[] = [
+  { label: "在售", labelKey: "common.productStatus.onSale", value: 1 },
+  { label: "下架", labelKey: "common.productStatus.offSale", value: 0 },
 ];
 
 // --- Actions-mode resources (backed by zero-code CRUD on the backend) ---
 export const productMeta: ResourceMeta = {
-  name: "demo/product",  permPrefix: "demo:product",
+  name: "demo/product", i18nKey: "product", permPrefix: "demo:product",
 
   title: "商品管理",
   path: "/demo/product",
@@ -72,7 +82,7 @@ export const productMeta: ResourceMeta = {
 };
 
 export const userMeta: ResourceMeta = {
-  name: "sys/user",  permPrefix: "sys:user",
+  name: "sys/user", i18nKey: "user", permPrefix: "sys:user",
 
   title: "用户管理",
   path: "/system/user",
@@ -91,7 +101,7 @@ export const userMeta: ResourceMeta = {
 };
 
 export const roleMeta: ResourceMeta = {
-  name: "sys/role",  permPrefix: "sys:role",
+  name: "sys/role", i18nKey: "role", permPrefix: "sys:role",
 
   title: "角色管理",
   path: "/system/role",
@@ -109,7 +119,7 @@ export const roleMeta: ResourceMeta = {
 };
 
 export const deptMeta: ResourceMeta = {
-  name: "sys/dept",  permPrefix: "sys:dept",
+  name: "sys/dept", i18nKey: "dept", permPrefix: "sys:dept",
 
   title: "部门管理",
   path: "/system/dept",
@@ -125,7 +135,7 @@ export const deptMeta: ResourceMeta = {
 };
 
 export const dictMeta: ResourceMeta = {
-  name: "sys/dict",  permPrefix: "sys:dict",
+  name: "sys/dict", i18nKey: "dict", permPrefix: "sys:dict",
 
   title: "字典管理",
   path: "/system/dict",

@@ -3,6 +3,7 @@ package controllers
 import (
 	"time"
 
+	ii18n "go-refine-admin/backend/core/i18n"
 	"go-refine-admin/backend/core/response"
 
 	"github.com/gin-gonic/gin"
@@ -30,11 +31,12 @@ func GenerateCaptcha(c *gin.Context) {
 	// The answer is deliberately discarded so it never reaches logs.
 	id, b64, _, err := cap.Generate()
 	if err != nil {
-		response.Error(c, 500, 500, err, "验证码获取失败")
+		response.ErrorKey(c, 500, 500, ii18n.CaptchaGenerateFailed, nil, "验证码获取失败")
 		return
 	}
 	// go-admin-compatible shape: image in data, captcha id in id.
-	c.JSON(200, gin.H{"code": 200, "data": b64, "id": id, "msg": "success"})
+	// msgKey/msgParams are included so the unified envelope contract holds.
+	c.JSON(200, gin.H{"code": 200, "data": b64, "id": id, "msg": "success", "msgKey": "", "msgParams": nil})
 }
 
 // VerifyCaptcha checks and consumes a captcha. Skipped in dev mode, like go-admin.

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"go-refine-admin/backend/core/i18n"
 	"go-refine-admin/backend/core/query"
 	"go-refine-admin/backend/core/response"
 
@@ -79,14 +80,14 @@ func (r *Resource[T]) list(c *gin.Context) {
 func (r *Resource[T]) get(c *gin.Context) {
 	id, err := parseID(c.Param("id"))
 	if err != nil {
-		response.Error(c, http.StatusBadRequest, 400, err, "invalid id")
+		response.ErrorKey(c, http.StatusBadRequest, 400, i18n.CommonInvalidID, nil, "invalid id")
 		return
 	}
 	var m T
 	pk := pkDBName(r.DB, m)
 	if err := r.DB.Model(new(T)).Where(pk+" = ?", id).First(&m).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			response.Error(c, http.StatusNotFound, 404, err, "not found")
+			response.ErrorKey(c, http.StatusNotFound, 404, i18n.CommonNotFound, nil, "not found")
 			return
 		}
 		response.Error(c, http.StatusInternalServerError, 500, err, "")
@@ -141,7 +142,7 @@ func (r *Resource[T]) create(c *gin.Context) {
 func (r *Resource[T]) update(c *gin.Context) {
 	id, err := parseID(c.Param("id"))
 	if err != nil {
-		response.Error(c, http.StatusBadRequest, 400, err, "invalid id")
+		response.ErrorKey(c, http.StatusBadRequest, 400, i18n.CommonInvalidID, nil, "invalid id")
 		return
 	}
 	var m T
@@ -176,7 +177,7 @@ func (r *Resource[T]) update(c *gin.Context) {
 func (r *Resource[T]) delete(c *gin.Context) {
 	ids, err := parseIDs(c.Param("id"))
 	if err != nil {
-		response.Error(c, http.StatusBadRequest, 400, err, "invalid id")
+		response.ErrorKey(c, http.StatusBadRequest, 400, i18n.CommonInvalidID, nil, "invalid id")
 		return
 	}
 	if r.Hooks.BeforeDelete != nil {
@@ -217,7 +218,7 @@ func parseIDs(s string) ([]interface{}, error) {
 		}
 	}
 	if len(out) == 0 {
-		return nil, errors.New("no id provided")
+		return nil, i18n.E(i18n.CommonNoID, "no id provided")
 	}
 	return out, nil
 }

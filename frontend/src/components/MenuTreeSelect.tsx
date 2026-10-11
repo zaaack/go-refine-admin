@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Radio, Space, Tag, Typography } from "antd";
 import { authApi, unwrap } from "../api/client";
 
@@ -6,17 +7,12 @@ type Mode = "none" | "read" | "write";
 
 interface MenuNode {
   id: number;
+  name?: string; // stable identifier; UI renders t(`menu.${name}`) with title fallback
   title: string;
   path?: string;
   type?: string; // M directory | C menu | F button
   children?: MenuNode[];
 }
-
-const MODE_OPTIONS = [
-  { label: "无", value: "none" as Mode },
-  { label: "只读", value: "read" as Mode },
-  { label: "读写", value: "write" as Mode },
-];
 
 // MenuTreeSelect is the role's permission editor with three states per menu:
 //   无权限   -> menu invisible
@@ -33,6 +29,7 @@ export default function MenuTreeSelect({
   value?: string;
   onChange?: (v: string) => void;
 }) {
+  const { t } = useTranslation();
   const [tree, setTree] = useState<MenuNode[]>([]);
 
   useEffect(() => {
@@ -40,6 +37,15 @@ export default function MenuTreeSelect({
       .then((d) => setTree(d ?? []))
       .catch(() => {});
   }, []);
+
+  const nodeTitle = (n: MenuNode) =>
+    n.name ? t(`menu.${n.name}`, { defaultValue: n.title }) : n.title;
+
+  const modeOptions = [
+    { label: t("menutree.none"), value: "none" as Mode },
+    { label: t("menutree.read"), value: "read" as Mode },
+    { label: t("menutree.write"), value: "write" as Mode },
+  ];
 
   const granted = new Set(
     (value ?? "")
@@ -95,25 +101,25 @@ export default function MenuTreeSelect({
     return (
       <div key={n.id} style={{ paddingLeft: depth * 28, marginBottom: 8 }}>
         <Space size={8} wrap>
-          <span style={{ minWidth: 88, display: "inline-block" }}>{n.title}</span>
+          <span style={{ minWidth: 88, display: "inline-block" }}>{nodeTitle(n)}</span>
           {n.type === "C" && (
             <Radio.Group
               size="small"
               optionType="button"
               buttonStyle="solid"
-              options={MODE_OPTIONS}
+              options={modeOptions}
               value={st}
               onChange={(e) => setMode(n, e.target.value as Mode)}
             />
           )}
-          {n.type === "M" && st !== "none" && <Tag color="blue">目录</Tag>}
+          {n.type === "M" && st !== "none" && <Tag color="blue">{t("menutree.directory")}</Tag>}
           {n.type === "M" && st === "none" && grantedSub && (
-            <Tag color="geekblue">含子菜单</Tag>
+            <Tag color="geekblue">{t("menutree.hasSubmenu")}</Tag>
           )}
           {st === "write" &&
             fKids(n).map((f) => (
               <Tag key={f.id} color="green">
-                {f.title}
+                {nodeTitle(f)}
               </Tag>
             ))}
         </Space>
@@ -133,9 +139,9 @@ export default function MenuTreeSelect({
       }}
     >
       <Typography.Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
-        每个菜单三种状态：无（不可见）/ 只读 / 可读可写（含新增、编辑、删除等按钮权限）
+        {t("menutree.hint")}
       </Typography.Text>
-      {tree.length ? tree.map((n) => renderNode(n, 0)) : "加载中..."}
+      {tree.length ? tree.map((n) => renderNode(n, 0)) : t("menutree.loading")}
     </div>
   );
 }

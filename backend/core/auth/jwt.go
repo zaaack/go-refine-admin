@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"go-refine-admin/backend/config"
+	ii18n "go-refine-admin/backend/core/i18n"
 	"go-refine-admin/backend/core/response"
 
 	"github.com/gin-gonic/gin"
@@ -49,17 +50,17 @@ func Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
 		if header == "" {
-			response.Abort(c, http.StatusUnauthorized, 401, errors.New("missing token"), "unauthorized")
+			response.AbortKey(c, http.StatusUnauthorized, 401, ii18n.AuthMissingToken, nil, "unauthorized")
 			return
 		}
 		tokenStr := strings.TrimPrefix(header, "Bearer ")
 		if tokenStr == header {
-			response.Abort(c, http.StatusUnauthorized, 401, errors.New("invalid token format"), "unauthorized")
+			response.AbortKey(c, http.StatusUnauthorized, 401, ii18n.AuthInvalidToken, nil, "unauthorized")
 			return
 		}
 		claims, err := parseToken(tokenStr)
 		if err != nil {
-			response.Abort(c, http.StatusUnauthorized, 401, err, "unauthorized")
+			response.AbortKey(c, http.StatusUnauthorized, 401, ii18n.AuthInvalidToken, nil, "unauthorized")
 			return
 		}
 		c.Set(string(userCtxKey), claims)

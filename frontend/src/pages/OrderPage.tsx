@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useTable, DeleteButton } from "@refinedev/antd";
+import { useTranslation } from "react-i18next";
 import { Table, Card, Row, Col, Statistic, Button, Space, Tag, message } from "antd";
 import { orderApi, unwrap } from "../api/client";
+import { backendErrorMessage } from "../i18n";
 
 const statusColor: Record<string, string> = {
   pending: "gold",
@@ -16,6 +18,7 @@ const statusColor: Record<string, string> = {
 // "mark paid" action that calls a hand-written backend route. This is the kind
 // of logic Actions mode does not cover.
 export default function OrderPage() {
+  const { t } = useTranslation();
   const { tableProps, tableQueryResult } = useTable({
     resource: "order",
     pagination: { pageSize: 10 },
@@ -32,49 +35,49 @@ export default function OrderPage() {
   const markPaid = async (id: any) => {
     try {
       await unwrap(orderApi.orderIdPaidPut({ id: String(id) }));
-      message.success("已标记为付款");
+      message.success(t("order.markedPaid"));
       tableQueryResult.refetch();
     } catch (e: any) {
-      message.error(e?.message || "操作失败");
+      message.error(backendErrorMessage(e));
     }
   };
 
   return (
-    <Card title="订单管理（常规模式 · 手写复杂逻辑）">
+    <Card title={t("order.title")}>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={8}>
           <Card size="small">
-            <Statistic title="订单总数" value={summary.count} />
+            <Statistic title={t("order.total")} value={summary.count} />
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small">
-            <Statistic title="订单总额" value={summary.totalAmount} precision={2} prefix="¥" />
+            <Statistic title={t("order.totalAmount")} value={summary.totalAmount} precision={2} prefix="¥" />
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small">
-            <Statistic title="已收款" value={summary.paidAmount} precision={2} prefix="¥" />
+            <Statistic title={t("order.paidAmount")} value={summary.paidAmount} precision={2} prefix="¥" />
           </Card>
         </Col>
       </Row>
       <Table {...tableProps} rowKey="id" dataSource={tableProps.dataSource as any}>
-        <Table.Column dataIndex="id" title="ID" width={70} />
-        <Table.Column dataIndex="orderNo" title="订单号" />
-        <Table.Column dataIndex="amount" title="金额" render={(v: number) => `¥${v}`} />
+        <Table.Column dataIndex="id" title={t("order.id")} width={70} />
+        <Table.Column dataIndex="orderNo" title={t("order.no")} />
+        <Table.Column dataIndex="amount" title={t("order.amount")} render={(v: number) => `¥${v}`} />
         <Table.Column
           dataIndex="status"
-          title="状态"
-          render={(v: string) => <Tag color={statusColor[v]}>{v}</Tag>}
+          title={t("order.status")}
+          render={(v: string) => <Tag color={statusColor[v]}>{t(`order.statusValue.${v}`, { defaultValue: v })}</Tag>}
         />
-        <Table.Column dataIndex="channel" title="渠道" />
+        <Table.Column dataIndex="channel" title={t("order.channel")} />
         <Table.Column
           dataIndex="createdAt"
-          title="创建时间"
+          title={t("order.createdAt")}
           render={(v: string) => (v ? new Date(v).toLocaleString() : "")}
         />
         <Table.Column
-          title="操作"
+          title={t("order.actions")}
           width={160}
           render={(_: any, r: any) => (
             <Space>
@@ -84,7 +87,7 @@ export default function OrderPage() {
                 disabled={r.status !== "pending" && r.status !== "cancel"}
                 onClick={() => markPaid(r.id)}
               >
-                标记付款
+                {t("order.markPaid")}
               </Button>
               <DeleteButton resource="order" hideText size="small" recordItemId={r.id} />
             </Space>

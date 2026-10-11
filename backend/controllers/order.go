@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go-refine-admin/backend/core/auth"
+	ii18n "go-refine-admin/backend/core/i18n"
 	"go-refine-admin/backend/core/response"
 	"go-refine-admin/backend/genquery"
 	"go-refine-admin/backend/models"
@@ -145,11 +146,11 @@ func (ctl OrderController) MarkPaid(c *gin.Context) {
 	id := c.Param("id")
 	var o models.Order
 	if err := ctl.DB.First(&o, id).Error; err != nil {
-		response.Error(c, http.StatusNotFound, 404, err, "order not found")
+		response.ErrorKey(c, http.StatusNotFound, 404, ii18n.OrderNotFound, nil, "order not found")
 		return
 	}
 	if o.Status != models.OrderPending && o.Status != models.OrderCanceled {
-		response.Error(c, http.StatusBadRequest, 400, nil, "only pending/canceled orders can be paid")
+		response.ErrorKey(c, http.StatusBadRequest, 400, ii18n.OrderOnlyPendingPay, nil, "only pending/canceled orders can be paid")
 		return
 	}
 	if err := ctl.DB.Model(&o).Update("status", models.OrderPaid).Error; err != nil {

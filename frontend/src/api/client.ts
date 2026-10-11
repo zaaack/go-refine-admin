@@ -18,11 +18,16 @@ apiAxios.interceptors.request.use((config) => {
   // into "demo%2Fproduct", which matches no backend route. Slashes inside the
   // path are safe here (resource names are server-defined), so restore them.
   if (config.url) config.url = config.url.replace(/%2F/gi, "/");
+  config.headers = config.headers ?? {};
   const t = localStorage.getItem("token");
   if (t) {
-    config.headers = config.headers ?? {};
     (config.headers as Record<string, string>)["Authorization"] = `Bearer ${t}`;
   }
+  // Unified i18n: tell the backend our language. The backend returns stable
+  // msgKey/msgParams (never translated text); the frontend renders them.
+  // Kept as a header (not query) so generated clients need no changes.
+  const lang = localStorage.getItem("lang") || "zh-CN";
+  (config.headers as Record<string, string>)["Accept-Language"] = lang;
   return config;
 });
 
@@ -41,18 +46,25 @@ export interface Envelope<T = any> {
   code?: number;
   data?: T;
   msg?: string;
+  // i18n contract: stable key + params rendered by the frontend
+  // (t(`backend.${msgKey}`)); msg is the fallback text.
+  msgKey?: string;
+  msgParams?: Record<string, any>;
   [k: string]: any;
 }
 
-// unwrap resolves the { code, data, msg } envelope, throwing on business-code
-// errors so refine surfaces them. The thrown error carries `statusCode` for
-// authProvider.onError (401 -> logout).
+// unwrap resolves the { code, data, msg, msgKey, msgParams } envelope, throwing
+// on business-code errors so refine surfaces them. The thrown error carries
+// `statusCode` for authProvider.onError (401 -> logout) plus `i18nKey` /
+// `i18nParams` for frontend rendering (see i18n/backendErrorMessage).
 export async function unwrap<T = any>(p: AxiosPromise<ResponseEnvelope>): Promise<T> {
   const res = await p;
   const env = res.data as Envelope<T>;
   if (env?.code !== 200) {
     const err: any = new Error(env?.msg || `request failed (${res.status})`);
     err.statusCode = env?.code;
+    err.i18nKey = env?.msgKey;
+    err.i18nParams = env?.msgParams;
     err.response = res;
     throw err;
   }
@@ -65,6 +77,11 @@ export async function unwrap<T = any>(p: AxiosPromise<ResponseEnvelope>): Promis
 export async function fetchCaptcha(): Promise<{ id: string; img: string }> {
   const res = await authApi.captchaGet();
   const env = res.data as Envelope<string>;
-  if (env?.code !== 200) throw new Error(env?.msg || "验证码获取失败");
+  if (env?.code !== 200) {
+    const err: any = new Error(env?.msg || "request failed");
+    err.i18nKey = env?.msgKey || "captcha.generateFailed";
+    err.i18nParams = env?.msgParams;
+    throw err;
+  }
   return { id: String((env as any).id ?? ""), img: String(env.data ?? "") };
 }

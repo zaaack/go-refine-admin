@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 
+	ii18n "go-refine-admin/backend/core/i18n"
 	"go-refine-admin/backend/core/response"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ func RequireRoles(roles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims := GetClaims(c)
 		if claims == nil {
-			response.Abort(c, http.StatusUnauthorized, 401, nil, "unauthorized")
+			response.AbortKey(c, http.StatusUnauthorized, 401, ii18n.AuthUnauthorized, nil, "unauthorized")
 			return
 		}
 		if claims.RoleKey == "admin" {
@@ -29,6 +30,6 @@ func RequireRoles(roles ...string) gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		response.Abort(c, http.StatusForbidden, 403, nil, "forbidden: insufficient role")
+		response.AbortKey(c, http.StatusForbidden, 403, ii18n.AuthForbiddenRole, nil, "forbidden: insufficient role")
 	}
 }

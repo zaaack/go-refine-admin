@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	ii18n "go-refine-admin/backend/core/i18n"
 	"go-refine-admin/backend/core/response"
 
 	"github.com/gin-gonic/gin"
@@ -44,7 +45,7 @@ func RequirePerm(perms ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claims := GetClaims(c)
 		if claims == nil {
-			response.Abort(c, http.StatusUnauthorized, 401, nil, "unauthorized")
+			response.AbortKey(c, http.StatusUnauthorized, 401, ii18n.AuthUnauthorized, nil, "unauthorized")
 			return
 		}
 		if claims.RoleKey == "admin" {
@@ -63,7 +64,8 @@ func RequirePerm(perms ...string) gin.HandlerFunc {
 				}
 			}
 		}
-		response.Abort(c, http.StatusForbidden, 403, nil,
-			"forbidden: missing permission "+strings.Join(perms, ","))
+		need := strings.Join(perms, ",")
+		response.AbortKey(c, http.StatusForbidden, 403, ii18n.AuthMissingPermission,
+			ii18n.Params("perm", need), "forbidden: missing permission "+need)
 	}
 }

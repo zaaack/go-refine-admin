@@ -1,5 +1,6 @@
 import type { AuthProvider } from "@refinedev/core";
 import { authApi, unwrap } from "../api/client";
+import { backendErrorMessage } from "../i18n";
 
 // JWT auth provider. Login goes through the generated AuthApi
 // (POST /api/v1/login, swagger-documented); everything else carries the Bearer
@@ -26,7 +27,7 @@ export const authProvider: AuthProvider = {
     } catch (e: any) {
       return {
         success: false,
-        error: { message: e?.message || "登录失败", name: "LoginError" },
+        error: { message: backendErrorMessage(e), name: "LoginError" },
       };
     }
   },

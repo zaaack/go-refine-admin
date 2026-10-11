@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useLogin } from "@refinedev/core";
-import { Card, Form, Input, Button, Typography } from "antd";
+import { useTranslation } from "react-i18next";
+import { Card, Form, Input, Button, Typography, message } from "antd";
 import { fetchCaptcha } from "../api/client";
+import { backendErrorMessage } from "../i18n";
 
 interface Captcha {
   id: string;
@@ -13,13 +15,14 @@ interface Captcha {
 //   POST /api/v1/login  -> { username, password, code, uuid } (via generated AuthApi)
 export default function Login() {
   const { mutate: login } = useLogin();
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const [captcha, setCaptcha] = useState<Captcha | null>(null);
 
   const refreshCaptcha = useCallback(() => {
     fetchCaptcha()
       .then((c) => setCaptcha(c))
-      .catch(() => {});
+      .catch((e) => message.error(backendErrorMessage(e)));
   }, []);
 
   useEffect(() => {
@@ -43,27 +46,27 @@ export default function Login() {
         background: "#f0f2f5",
       }}
     >
-      <Card style={{ width: 360 }} title={<Typography.Title level={4}>Go Refine Admin</Typography.Title>}>
+      <Card style={{ width: 360 }} title={<Typography.Title level={4}>{t("login.title")}</Typography.Title>}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item name="username" label="用户名" rules={[{ required: true, message: "请输入用户名" }]}>
-            <Input placeholder="admin" />
+          <Form.Item name="username" label={t("login.username")} rules={[{ required: true, message: t("login.usernameRequired") }]}>
+            <Input placeholder={t("login.usernamePh")} />
           </Form.Item>
-          <Form.Item name="password" label="密码" rules={[{ required: true, message: "请输入密码" }]}>
-            <Input.Password placeholder="admin123" />
+          <Form.Item name="password" label={t("login.password")} rules={[{ required: true, message: t("login.passwordRequired") }]}>
+            <Input.Password placeholder={t("login.passwordPh")} />
           </Form.Item>
-          <Form.Item label="验证码" required style={{ marginBottom: 24 }}>
+          <Form.Item label={t("login.captcha")} required style={{ marginBottom: 24 }}>
             <Input.Group compact style={{ display: "flex" }}>
               <Form.Item
                 name="code"
                 noStyle
-                rules={[{ required: true, message: "请输入验证码" }]}
+                rules={[{ required: true, message: t("login.captchaRequired") }]}
               >
-                <Input placeholder="4 位数字" maxLength={4} style={{ flex: 1 }} />
+                <Input placeholder={t("login.captchaPh")} maxLength={4} style={{ flex: 1 }} />
               </Form.Item>
               <img
                 src={captcha?.img}
-                alt="验证码"
-                title="点击刷新"
+                alt={t("login.captchaAlt")}
+                title={t("login.captchaTitle")}
                 onClick={refreshCaptcha}
                 style={{
                   height: 40,
@@ -76,7 +79,7 @@ export default function Login() {
             </Input.Group>
           </Form.Item>
           <Button type="primary" htmlType="submit" block>
-            登录
+            {t("login.submit")}
           </Button>
         </Form>
       </Card>
