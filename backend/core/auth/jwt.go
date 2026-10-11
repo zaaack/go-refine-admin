@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"net/http"
 	"strings"
@@ -9,9 +11,11 @@ import (
 	"go-refine-admin/backend/config"
 	ii18n "go-refine-admin/backend/core/i18n"
 	"go-refine-admin/backend/core/response"
+	"go-refine-admin/backend/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 )
 
 // Claims is the JWT payload.
@@ -29,24 +33,50 @@ type ctxKey string
 
 const userCtxKey ctxKey = "auth_user"
 
+// NewJTI generates a random JWT ID (session identifier stored in sys_user_token).
+func NewJTI() string {
+	var b [16]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return strings.ReplaceAll(time.Now().Format("20060102150405.000000000"), ".", "")
+	}
+	return hex.EncodeToString(b[:])
+}
+
 // GenerateToken issues a signed JWT for the given claims.
-func GenerateToken(c Claims) (string, error) {
+// It assigns a fresh JTI (RegisteredClaims.ID) and returns token + jti.
+func GenerateToken(c Claims) (tokenStr, jti string, err error) {
 	cfg := config.Get().JWT
 	timeout, err := time.ParseDuration(cfg.Timeout)
 	if err != nil {
 		timeout = 24 * time.Hour
 	}
+	jti = NewJTI()
 	c.RegisteredClaims = jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(timeout)),
 		Issuer:    cfg.Issuer,
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ID:        jti,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
-	return token.SignedString([]byte(cfg.Secret))
+	tokenStr, err = token.SignedString([]byte(cfg.Secret))
+	return tokenStr, jti, err
 }
 
-// Middleware validates the Bearer token and stores the claims in the context.
-func Middleware() gin.HandlerFunc {
+// TokenTimeout returns the configured JWT lifetime (fallback 24h).
+func TokenTimeout() time.Duration {
+	cfg := config.Get().JWT
+	timeout, err := time.ParseDuration(cfg.Timeout)
+	if err != nil {
+		timeout = 24 * time.Hour
+	}
+	return timeout
+}
+
+// Middleware validates the Bearer token, checks the server-side token table
+// (sys_user_token) for revocation, and stores the claims in the context.
+// Tokens issued before the token-table upgrade carry no JTI and are accepted
+// as-is for backward compatibility.
+func Middleware(gdb *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
 		if header == "" {
@@ -62,6 +92,17 @@ func Middleware() gin.HandlerFunc {
 		if err != nil {
 			response.AbortKey(c, http.StatusUnauthorized, 401, ii18n.AuthInvalidToken, nil, "unauthorized")
 			return
+		}
+		if claims.ID != "" && gdb != nil {
+			var sess models.SysUserToken
+			if err := gdb.Where("jti = ?", claims.ID).First(&sess).Error; err != nil {
+				response.AbortKey(c, http.StatusUnauthorized, 401, ii18n.AuthInvalidToken, nil, "token已下线或已注销，请重新登录")
+				return
+			}
+			if sess.Status != 0 || time.Now().After(sess.ExpireAt) {
+				response.AbortKey(c, http.StatusUnauthorized, 401, ii18n.AuthInvalidToken, nil, "token已下线或已过期，请重新登录")
+				return
+			}
 		}
 		c.Set(string(userCtxKey), claims)
 		c.Next()
@@ -102,6 +143,14 @@ func GetUserID(c *gin.Context) uint {
 		return cl.UserID
 	}
 	return 0
+}
+
+// GetJTI returns the current token's JTI (session id, "" if absent).
+func GetJTI(c *gin.Context) string {
+	if cl := GetClaims(c); cl != nil {
+		return cl.ID
+	}
+	return ""
 }
 
 // GetDataScope returns the current role's data scope: 1 all, 2 custom, 3 self.

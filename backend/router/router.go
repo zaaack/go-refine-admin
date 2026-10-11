@@ -62,21 +62,38 @@ func Build(db *gorm.DB) *gin.Engine {
 	{
 		v1Public.GET("/captcha", controllers.GenerateCaptcha)
 		v1Public.POST("/login", controllers.Login(db))
+		v1Public.GET("/app-config", controllers.AppConfig(db))
 	}
 	r.Static("/uploads", "./uploads")
 	serveSPA(r)
 
 	// ---- Protected API (v1) ----
 	v1 := r.Group("/api/v1")
-	v1.Use(auth.Middleware())
+	v1.Use(auth.Middleware(db))
 	{
 		v1.GET("/me", controllers.Me)
 		v1.GET("/me/profile", controllers.Profile(db))
 		v1.PUT("/me/profile", controllers.UpdateProfile(db))
 		v1.PUT("/me/password", controllers.ChangePassword(db))
+		v1.POST("/logout", controllers.Logout(db))
 		v1.GET("/menu/tree", controllers.MenuTree(db))
 		v1.GET("/dashboard/stats", controllers.Dashboard(db))
 		v1.POST("/upload", controllers.Upload(db, "./uploads"))
+
+		// ---- Monitor: audit + login log + online sessions + server ----
+		v1.GET("/sys/oper-log", controllers.ListOperLog(db))
+		v1.GET("/sys/oper-log/:id", controllers.GetOperLog(db))
+		v1.DELETE("/sys/oper-log/clean", controllers.CleanOperLog(db))
+		v1.DELETE("/sys/oper-log/:id", controllers.DeleteOperLog(db))
+		v1.GET("/sys/login-log", controllers.ListLoginLog(db))
+		v1.GET("/sys/login-log/:id", controllers.GetLoginLog(db))
+		v1.DELETE("/sys/login-log/clean", controllers.CleanLoginLog(db))
+		v1.DELETE("/sys/login-log/:id", controllers.DeleteLoginLog(db))
+		v1.GET("/auth/online", controllers.ListOnline(db))
+		v1.DELETE("/auth/online/:id", controllers.ForceOffline(db))
+		v1.GET("/server-monitor", controllers.ServerInfo)
+		v1.GET("/set-config", controllers.GetSetConfig(db))
+		v1.PUT("/set-config", controllers.UpdateSetConfig(db))
 
 		// ---- Actions mode (zero-code CRUD) ----
 		hashUserPassword := func(m *models.SysUser) error {
@@ -119,6 +136,7 @@ func Build(db *gorm.DB) *gin.Engine {
 		actions.NewResource[models.SysDept](db).WithName("sys/dept").WithPermPrefix("sys:dept").Register(v1)
 		actions.NewResource[models.SysDict](db).WithName("sys/dict").WithPermPrefix("sys:dict").Register(v1)
 		actions.NewResource[models.SysDictDetail](db).WithName("sys/dict-detail").WithPermPrefix("sys:dict-detail").Register(v1)
+		actions.NewResource[models.SysConfig](db).WithName("sys/config").WithPermPrefix("sys:config").Register(v1)
 
 		// Product: zero-code CRUD, with audit hooks, role data-scope and
 		// write-permission guards (F-node perms demo:product:create/edit/delete).

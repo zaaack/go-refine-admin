@@ -19,13 +19,16 @@ var (
 	Q             = new(Query)
 	Order         *order
 	Product       *product
+	SysConfig     *sysConfig
 	SysDept       *sysDept
 	SysDict       *sysDict
 	SysDictDetail *sysDictDetail
+	SysLoginLog   *sysLoginLog
 	SysMenu       *sysMenu
 	SysOperLog    *sysOperLog
 	SysRole       *sysRole
 	SysUser       *sysUser
+	SysUserToken  *sysUserToken
 	Upload        *upload
 )
 
@@ -33,13 +36,16 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	Order = &Q.Order
 	Product = &Q.Product
+	SysConfig = &Q.SysConfig
 	SysDept = &Q.SysDept
 	SysDict = &Q.SysDict
 	SysDictDetail = &Q.SysDictDetail
+	SysLoginLog = &Q.SysLoginLog
 	SysMenu = &Q.SysMenu
 	SysOperLog = &Q.SysOperLog
 	SysRole = &Q.SysRole
 	SysUser = &Q.SysUser
+	SysUserToken = &Q.SysUserToken
 	Upload = &Q.Upload
 }
 
@@ -48,13 +54,16 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		db:            db,
 		Order:         newOrder(db, opts...),
 		Product:       newProduct(db, opts...),
+		SysConfig:     newSysConfig(db, opts...),
 		SysDept:       newSysDept(db, opts...),
 		SysDict:       newSysDict(db, opts...),
 		SysDictDetail: newSysDictDetail(db, opts...),
+		SysLoginLog:   newSysLoginLog(db, opts...),
 		SysMenu:       newSysMenu(db, opts...),
 		SysOperLog:    newSysOperLog(db, opts...),
 		SysRole:       newSysRole(db, opts...),
 		SysUser:       newSysUser(db, opts...),
+		SysUserToken:  newSysUserToken(db, opts...),
 		Upload:        newUpload(db, opts...),
 	}
 }
@@ -64,13 +73,16 @@ type Query struct {
 
 	Order         order
 	Product       product
+	SysConfig     sysConfig
 	SysDept       sysDept
 	SysDict       sysDict
 	SysDictDetail sysDictDetail
+	SysLoginLog   sysLoginLog
 	SysMenu       sysMenu
 	SysOperLog    sysOperLog
 	SysRole       sysRole
 	SysUser       sysUser
+	SysUserToken  sysUserToken
 	Upload        upload
 }
 
@@ -83,13 +95,16 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		db:            db,
 		Order:         q.Order.clone(db),
 		Product:       q.Product.clone(db),
+		SysConfig:     q.SysConfig.clone(db),
 		SysDept:       q.SysDept.clone(db),
 		SysDict:       q.SysDict.clone(db),
 		SysDictDetail: q.SysDictDetail.clone(db),
+		SysLoginLog:   q.SysLoginLog.clone(db),
 		SysMenu:       q.SysMenu.clone(db),
 		SysOperLog:    q.SysOperLog.clone(db),
 		SysRole:       q.SysRole.clone(db),
 		SysUser:       q.SysUser.clone(db),
+		SysUserToken:  q.SysUserToken.clone(db),
 		Upload:        q.Upload.clone(db),
 	}
 }
@@ -107,13 +122,16 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		db:            db,
 		Order:         q.Order.replaceDB(db),
 		Product:       q.Product.replaceDB(db),
+		SysConfig:     q.SysConfig.replaceDB(db),
 		SysDept:       q.SysDept.replaceDB(db),
 		SysDict:       q.SysDict.replaceDB(db),
 		SysDictDetail: q.SysDictDetail.replaceDB(db),
+		SysLoginLog:   q.SysLoginLog.replaceDB(db),
 		SysMenu:       q.SysMenu.replaceDB(db),
 		SysOperLog:    q.SysOperLog.replaceDB(db),
 		SysRole:       q.SysRole.replaceDB(db),
 		SysUser:       q.SysUser.replaceDB(db),
+		SysUserToken:  q.SysUserToken.replaceDB(db),
 		Upload:        q.Upload.replaceDB(db),
 	}
 }
@@ -121,13 +139,16 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 type queryCtx struct {
 	Order         IOrderDo
 	Product       IProductDo
+	SysConfig     ISysConfigDo
 	SysDept       ISysDeptDo
 	SysDict       ISysDictDo
 	SysDictDetail ISysDictDetailDo
+	SysLoginLog   ISysLoginLogDo
 	SysMenu       ISysMenuDo
 	SysOperLog    ISysOperLogDo
 	SysRole       ISysRoleDo
 	SysUser       ISysUserDo
+	SysUserToken  ISysUserTokenDo
 	Upload        IUploadDo
 }
 
@@ -135,13 +156,16 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		Order:         q.Order.WithContext(ctx),
 		Product:       q.Product.WithContext(ctx),
+		SysConfig:     q.SysConfig.WithContext(ctx),
 		SysDept:       q.SysDept.WithContext(ctx),
 		SysDict:       q.SysDict.WithContext(ctx),
 		SysDictDetail: q.SysDictDetail.WithContext(ctx),
+		SysLoginLog:   q.SysLoginLog.WithContext(ctx),
 		SysMenu:       q.SysMenu.WithContext(ctx),
 		SysOperLog:    q.SysOperLog.WithContext(ctx),
 		SysRole:       q.SysRole.WithContext(ctx),
 		SysUser:       q.SysUser.WithContext(ctx),
+		SysUserToken:  q.SysUserToken.WithContext(ctx),
 		Upload:        q.Upload.WithContext(ctx),
 	}
 }

@@ -4,10 +4,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"go-refine-admin/backend/config"
 	"go-refine-admin/backend/core/auth"
 	ii18n "go-refine-admin/backend/core/i18n"
+	"go-refine-admin/backend/core/netutil"
 	"go-refine-admin/backend/core/response"
 	"go-refine-admin/backend/models"
 
@@ -43,31 +45,59 @@ func Login(gdb *gorm.DB) gin.HandlerFunc {
 			response.Error(c, http.StatusBadRequest, 400, err, "")
 			return
 		}
+		ip := netutil.ClientIPFromGin(c)
+		ua := c.Request.UserAgent()
+		browser, osName, device := netutil.ParseUA(ua)
+		location := netutil.Location(ip)
+		fail := func(username string, uid uint, msg string, key string) {
+			go func() {
+				_ = gdb.Create(&models.SysLoginLog{
+					Username: username, UserID: uid, IP: ip, Location: location,
+					Browser: browser, OS: osName, Device: device, UA: truncate(ua, 500),
+					Status: 1, Msg: msg,
+				}).Error
+			}()
+			response.ErrorKey(c, http.StatusUnauthorized, 401, key, nil, msg)
+		}
 		// Captcha check, skipped in dev mode (same rule as go-admin).
 		if config.Get().Server.Mode != "dev" {
 			if !VerifyCaptcha(req.UUID, req.Code) {
+				go func() {
+					_ = gdb.Create(&models.SysLoginLog{
+						Username: req.Username, IP: ip, Location: location,
+						Browser: browser, OS: osName, Device: device, UA: truncate(ua, 500),
+						Status: 1, Msg: "验证码错误",
+					}).Error
+				}()
 				response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthCaptchaInvalid, nil, "验证码错误")
 				return
 			}
 		}
 		var u models.SysUser
 		if err := gdb.Where("username = ?", req.Username).First(&u).Error; err != nil {
-			response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthInvalidCredentials, nil, "用户名或密码错误")
+			fail(req.Username, 0, "用户名或密码错误", ii18n.AuthInvalidCredentials)
 			return
 		}
 		if u.Status != 1 {
+			go func() {
+				_ = gdb.Create(&models.SysLoginLog{
+					Username: u.Username, UserID: u.ID, IP: ip, Location: location,
+					Browser: browser, OS: osName, Device: device, UA: truncate(ua, 500),
+					Status: 1, Msg: "账号已被禁用",
+				}).Error
+			}()
 			response.ErrorKey(c, http.StatusForbidden, 403, ii18n.AuthAccountDisabled, nil, "账号已被禁用")
 			return
 		}
 		if !u.ComparePassword(req.Password) {
-			response.ErrorKey(c, http.StatusUnauthorized, 401, ii18n.AuthInvalidCredentials, nil, "用户名或密码错误")
+			fail(req.Username, u.ID, "用户名或密码错误", ii18n.AuthInvalidCredentials)
 			return
 		}
 		var role models.SysRole
 		gdb.First(&role, u.RoleID)
 		perms := rolePerms(gdb, role)
 
-		token, err := auth.GenerateToken(auth.Claims{
+		token, jti, err := auth.GenerateToken(auth.Claims{
 			UserID:    u.ID,
 			Username:  u.Username,
 			RoleKey:   role.RoleKey,
@@ -79,6 +109,19 @@ func Login(gdb *gorm.DB) gin.HandlerFunc {
 			response.Error(c, http.StatusInternalServerError, 500, err, "")
 			return
 		}
+		expireAt := time.Now().Add(auth.TokenTimeout())
+		_ = gdb.Create(&models.SysUserToken{
+			UserID: u.ID, Username: u.Username, JTI: jti,
+			IP: ip, Location: location, Browser: browser, OS: osName, Device: device,
+			UA: truncate(ua, 500), LoginTime: time.Now(), ExpireAt: expireAt, Status: 0,
+		}).Error
+		go func() {
+			_ = gdb.Create(&models.SysLoginLog{
+				Username: u.Username, UserID: u.ID, IP: ip, Location: location,
+				Browser: browser, OS: osName, Device: device, UA: truncate(ua, 500),
+				Status: 0, Msg: "登录成功",
+			}).Error
+		}()
 		response.OK(c, gin.H{
 			"token": token,
 			"user": gin.H{
@@ -90,6 +133,30 @@ func Login(gdb *gorm.DB) gin.HandlerFunc {
 			},
 			"perms": perms,
 		}, "")
+	}
+}
+
+func truncate(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	return s[:n]
+}
+
+// Logout revokes the current token (marks sys_user_token offline).
+//
+//	@Summary	Logout
+//	@Tags		Auth
+//	@Produce	json
+//	@Success	200	{object}	response.Envelope
+//	@Router		/logout [post]
+//	@Security	Bearer
+func Logout(gdb *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if jti := auth.GetJTI(c); jti != "" {
+			gdb.Model(&models.SysUserToken{}).Where("jti = ?", jti).Update("status", 1)
+		}
+		response.OK(c, nil, "已退出")
 	}
 }
 

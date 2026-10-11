@@ -33,9 +33,12 @@ func newSysOperLog(db *gorm.DB, opts ...gen.DOOption) sysOperLog {
 	_sysOperLog.Method = field.NewString(tableName, "method")
 	_sysOperLog.Path = field.NewString(tableName, "path")
 	_sysOperLog.IP = field.NewString(tableName, "ip")
+	_sysOperLog.Location = field.NewString(tableName, "location")
+	_sysOperLog.UserAgent = field.NewString(tableName, "user_agent")
 	_sysOperLog.UserID = field.NewUint(tableName, "user_id")
 	_sysOperLog.Username = field.NewString(tableName, "username")
 	_sysOperLog.Status = field.NewInt(tableName, "status")
+	_sysOperLog.StatusCode = field.NewInt(tableName, "status_code")
 	_sysOperLog.Duration = field.NewInt64(tableName, "duration")
 	_sysOperLog.ErrMsg = field.NewString(tableName, "err_msg")
 	_sysOperLog.Body = field.NewString(tableName, "body")
@@ -49,19 +52,22 @@ func newSysOperLog(db *gorm.DB, opts ...gen.DOOption) sysOperLog {
 type sysOperLog struct {
 	sysOperLogDo
 
-	ALL       field.Asterisk
-	ID        field.Uint
-	Title     field.String
-	Method    field.String
-	Path      field.String
-	IP        field.String
-	UserID    field.Uint
-	Username  field.String
-	Status    field.Int
-	Duration  field.Int64
-	ErrMsg    field.String
-	Body      field.String
-	CreatedAt field.Time
+	ALL        field.Asterisk
+	ID         field.Uint
+	Title      field.String
+	Method     field.String
+	Path       field.String
+	IP         field.String
+	Location   field.String
+	UserAgent  field.String
+	UserID     field.Uint
+	Username   field.String
+	Status     field.Int
+	StatusCode field.Int
+	Duration   field.Int64
+	ErrMsg     field.String
+	Body       field.String
+	CreatedAt  field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -83,9 +89,12 @@ func (s *sysOperLog) updateTableName(table string) *sysOperLog {
 	s.Method = field.NewString(table, "method")
 	s.Path = field.NewString(table, "path")
 	s.IP = field.NewString(table, "ip")
+	s.Location = field.NewString(table, "location")
+	s.UserAgent = field.NewString(table, "user_agent")
 	s.UserID = field.NewUint(table, "user_id")
 	s.Username = field.NewString(table, "username")
 	s.Status = field.NewInt(table, "status")
+	s.StatusCode = field.NewInt(table, "status_code")
 	s.Duration = field.NewInt64(table, "duration")
 	s.ErrMsg = field.NewString(table, "err_msg")
 	s.Body = field.NewString(table, "body")
@@ -106,15 +115,18 @@ func (s *sysOperLog) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sysOperLog) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 12)
+	s.fieldMap = make(map[string]field.Expr, 15)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["title"] = s.Title
 	s.fieldMap["method"] = s.Method
 	s.fieldMap["path"] = s.Path
 	s.fieldMap["ip"] = s.IP
+	s.fieldMap["location"] = s.Location
+	s.fieldMap["user_agent"] = s.UserAgent
 	s.fieldMap["user_id"] = s.UserID
 	s.fieldMap["username"] = s.Username
 	s.fieldMap["status"] = s.Status
+	s.fieldMap["status_code"] = s.StatusCode
 	s.fieldMap["duration"] = s.Duration
 	s.fieldMap["err_msg"] = s.ErrMsg
 	s.fieldMap["body"] = s.Body

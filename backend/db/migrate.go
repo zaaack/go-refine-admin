@@ -15,6 +15,9 @@ func allModels() []interface{} {
 		&models.SysDict{},
 		&models.SysDictDetail{},
 		&models.SysOperLog{},
+		&models.SysLoginLog{},
+		&models.SysUserToken{},
+		&models.SysConfig{},
 		&models.Upload{},
 		&models.Product{},
 		&models.Order{},
@@ -123,6 +126,20 @@ func seed(gdb *gorm.DB) error {
 			{Name: "4K显示器", SKU: "MN-001", Category: "显示器", Price: 1899.00, Stock: 0, Status: 0},
 		}
 		if err := gdb.Create(&products).Error; err != nil {
+			return err
+		}
+	}
+
+	// System configs (参考 go-admin sys_config)
+	var cfgCount int64
+	gdb.Model(&models.SysConfig{}).Count(&cfgCount)
+	if cfgCount == 0 {
+		configs := []models.SysConfig{
+			{ConfigName: "系统名称", ConfigKey: "sys.name", ConfigValue: "Go Refine Admin", ConfigType: "Y", IsFrontend: 1, Remark: "前台展示"},
+			{ConfigName: "系统版本", ConfigKey: "sys.version", ConfigValue: "1.0", ConfigType: "Y", IsFrontend: 1, Remark: ""},
+			{ConfigName: "登录验证码", ConfigKey: "sys.login.captcha", ConfigValue: "1", ConfigType: "N", IsFrontend: 0, Remark: "1开启 0关闭(预留)"},
+		}
+		if err := gdb.Create(&configs).Error; err != nil {
 			return err
 		}
 	}
